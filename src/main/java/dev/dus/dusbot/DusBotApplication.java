@@ -1,4 +1,4 @@
-package dev.dus.DusBot;
+package dev.dus.dusbot;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
