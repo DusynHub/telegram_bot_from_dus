@@ -3,6 +3,7 @@ package dev.dus.dusbot.config;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.Setter;
+import lombok.ToString;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.PropertySource;
@@ -10,13 +11,13 @@ import org.springframework.context.annotation.PropertySource;
 @Configuration
 @Getter
 @Setter
-@RequiredArgsConstructor
-@PropertySource("application.properties")
+@ToString
+@PropertySource(value = "classpath:application.properties")
 public class DusBotConfig {
 
     @Value("${bot.name}")
     private String botName;
 
-    @Value("${bot.token")
+    @Value("${bot.token}")
     private String token;
 }
