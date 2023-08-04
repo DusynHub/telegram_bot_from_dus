@@ -1,18 +1,28 @@
 package dev.dus.dusbot.service;
 
+import dev.dus.dusbot.commandHandlers.SavePhotoHandler;
+import dev.dus.dusbot.commandHandlers.SavePhotoMenuHandler;
+import dev.dus.dusbot.commandHandlers.SavePhotoMessageHandler;
 import dev.dus.dusbot.commandHandlers.Handle;
 import dev.dus.dusbot.commandHandlers.HelpHandler;
+import dev.dus.dusbot.commandHandlers.InlineMainMenuHandler;
 import dev.dus.dusbot.commandHandlers.StartHandler;
 import dev.dus.dusbot.config.DusBotConfig;
+import dev.dus.dusbot.enums.Commands;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
+import org.telegram.telegrambots.bots.DefaultAbsSender;
 import org.telegram.telegrambots.bots.TelegramLongPollingBot;
+import org.telegram.telegrambots.meta.api.methods.GetFile;
 import org.telegram.telegrambots.meta.api.methods.commands.SetMyCommands;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
+import org.telegram.telegrambots.meta.api.objects.File;
+import org.telegram.telegrambots.meta.api.objects.Message;
 import org.telegram.telegrambots.meta.api.objects.Update;
 import org.telegram.telegrambots.meta.api.objects.User;
 import org.telegram.telegrambots.meta.api.objects.commands.BotCommand;
 import org.telegram.telegrambots.meta.api.objects.commands.scope.BotCommandScopeDefault;
+import org.telegram.telegrambots.meta.bots.AbsSender;
 import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 
 import java.util.ArrayList;
@@ -20,26 +30,28 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import static dev.dus.dusbot.enums.Commands.*;
+
 @Component
 @Slf4j
 public class TelegramBot extends TelegramLongPollingBot {
 
-    private static String HELP_TEXT = "This is DusynBot \n\n" +
-            "Type /start to receive welcome message\n\n" +
-            "Type /help to receive help message again";
-
     private final DusBotConfig config;
-    private final Map<String, BotCommand> commandHandlers = new HashMap<>();
+    private final Map<Commands, Handle> commandHandlers = new HashMap<>();
     {
-        commandHandlers.put("/start", new StartHandler("/start", "Welcome message"));
-        commandHandlers.put("/help", new HelpHandler("/help", "Help information"));
+        commandHandlers.put(START, new StartHandler("/start", "Welcome message"));
+        commandHandlers.put(HELP, new HelpHandler("/help", "Help information"));
+        commandHandlers.put(MENU, new InlineMainMenuHandler("/menu", "Menu"));
+        commandHandlers.put(SAVE_PHOTO_MESSAGE, new SavePhotoMessageHandler("/save_photo_message", "Save photo message"));
+        commandHandlers.put(SAVE_PHOTO_MENU, new SavePhotoMenuHandler("/save_photo_menu", "save_photo_menu"));
+        commandHandlers.put(SAVE_PHOTO, new SavePhotoHandler("/save_photo", "save_photo", this));
     }
 
     public TelegramBot(DusBotConfig config) {
         this.config = config;
         List<BotCommand> commands = new ArrayList<>();
-        commands.add(commandHandlers.get("/start"));
-        commands.add(new BotCommand("/help", "Help information"));
+        commands.add((BotCommand) commandHandlers.get(START));
+        commands.add((BotCommand) commandHandlers.get(HELP));
         try{
             this.execute(new SetMyCommands(commands, new BotCommandScopeDefault(), null));
         } catch (TelegramApiException e){
@@ -68,22 +80,60 @@ public class TelegramBot extends TelegramLongPollingBot {
         if(update.hasMessage() && update.getMessage().hasText()){
             text = update.getMessage().getText();
             chatId = update.getMessage().getChatId();
+
+            if(!text.startsWith("/")){
+                log.info("Получено сообщение к боту по пути '{}'", text);
+                sendMessage(chatId, "This is not command for bot");
+                return;
+            }
+
+            Handle commandHandler = null;
+            if((commandHandler = commandHandlers.get(Commands.getCommand(extractCommandWithoutPostfix(text)))) != null){
+                Message update1 = update.getMessage();
+                sendMessage(commandHandler.handle(update1));
+                callMainMenu(update);
+                return;
+            } else {
+                sendMessage(chatId, "Not available function yet");
+                callMainMenu(update);
+                return;
+            }
         }
 
-        if(!text.startsWith("/")){
-            log.info("Получено сообщение к боту по пути '{}'", text);
-            sendMessage(chatId, "This is not command for bot");
+        if(update.hasCallbackQuery()){
+            String callBackData = update.getCallbackQuery().getData();
+            Commands action =  Commands.getCommand(callBackData);
+            sendMessage(commandHandlers.get(Commands.getCommand(callBackData)).handle(update.getCallbackQuery()));
+            if(action == SAVE_PHOTO_MESSAGE){
+                callSavePhotoMenu(update);
+                return;
+            }
+
+            if(action == MENU){
+                return;
+            }
+            callMainMenu(update);
+        }
+
+        if(update.hasMessage()){
+            sendMessage(commandHandlers.get(SAVE_PHOTO).handle(update.getMessage()));
+        }
+    }
+
+    private void callMainMenu(Update update) {
+        if(update.getMessage() == null){
+            sendMessage(commandHandlers.get(MENU).handle(update.getCallbackQuery()));
             return;
         }
+        sendMessage(commandHandlers.get(MENU).handle(update.getMessage()));
+    }
 
-        Handle commandHandler = null;
-        if( (commandHandler = (Handle) commandHandlers.get(extractCommandWithoutPostfix(text))) != null){
-            sendMessage(commandHandler.handle(update.getMessage()));
-        } else {
-            sendMessage(chatId, "Not available function yet");
+    private void callSavePhotoMenu(Update update) {
+        if(update.getMessage() == null){
+            sendMessage(commandHandlers.get(SAVE_PHOTO_MENU).handle(update.getCallbackQuery()));
+            return;
         }
-
-
+        sendMessage(commandHandlers.get(SAVE_PHOTO_MENU).handle(update.getMessage()));
     }
 
 
@@ -109,6 +159,9 @@ public class TelegramBot extends TelegramLongPollingBot {
 
     private String extractCommandWithoutPostfix(String text){
         int atSignIndex = text.indexOf('@');
-        return text.contains("@") ? text.substring(0, atSignIndex):text;
+        return text.contains("@") ? text.substring(1, atSignIndex):text;
     }
+
+
+
 }
