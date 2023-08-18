@@ -9,19 +9,19 @@ import org.telegram.telegrambots.meta.api.objects.User;
 import org.telegram.telegrambots.meta.bots.AbsSender;
 import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 
-public class HandleStart extends Handler {
+public class HandlerStart extends Handler {
 
-    private HandleStart next;
+    private HandlerStart next;
 
-    public HandleStart(AbsSender messageSender, MenuSender menuSender) {
+    public HandlerStart(AbsSender messageSender, MenuSender menuSender) {
         super(messageSender, menuSender);
     }
 
 
-    public static HandleStart link(HandleStart first, HandleStart... chain) {
-        HandleStart head = first;
+    public static HandlerStart link(HandlerStart first, HandlerStart... chain) {
+        HandlerStart head = first;
 
-        for (HandleStart nextLinkInChain : chain) {
+        for (HandlerStart nextLinkInChain : chain) {
             head.next = nextLinkInChain;
             head = nextLinkInChain;
         }

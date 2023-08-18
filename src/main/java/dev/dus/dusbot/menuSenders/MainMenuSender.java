@@ -12,14 +12,12 @@ import java.util.ArrayList;
 import java.util.List;
 
 
-public abstract class MainMenuSender extends MenuSender{
+public class MainMenuSender extends MenuSender{
 
     private MainMenuSender next;
 
-    protected AbsSender sender;
-
-    public MainMenuSender(AbsSender sender) {
-        super(sender);
+    public MainMenuSender(AbsSender messageSender) {
+        super(messageSender);
     }
 
 
@@ -37,7 +35,7 @@ public abstract class MainMenuSender extends MenuSender{
     public boolean sendMenu(MenuType menuType, long chatId) {
         if(menuType == MenuType.MAIN){
             try {
-                sender.execute(getSendMessage(chatId));
+                messageSender.execute(getSendMessage(chatId));
             } catch (TelegramApiException e) {
                 throw new RuntimeException(e);
             }

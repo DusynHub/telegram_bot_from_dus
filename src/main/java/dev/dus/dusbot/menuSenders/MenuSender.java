@@ -13,19 +13,20 @@ import java.util.List;
 
 public abstract class MenuSender {
 
+    protected AbsSender messageSender;
+
     private MenuSender next;
 
-    public MenuSender(AbsSender sender) {
+    public MenuSender(AbsSender messageSender) {
+        this.messageSender = messageSender;
     }
 
     public static MenuSender link(MenuSender first, MenuSender... chain){
         MenuSender head = first;
-
         for(MenuSender nextLinkInChain : chain){
             head.next = nextLinkInChain;
             head = nextLinkInChain;
         }
-
         return first;
     }
 
