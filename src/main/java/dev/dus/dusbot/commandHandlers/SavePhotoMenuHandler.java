@@ -13,7 +13,6 @@ import java.util.List;
 
 public class SavePhotoMenuHandler extends BotCommand implements Handle{
 
-
     public SavePhotoMenuHandler() {
     }
 
@@ -43,11 +42,11 @@ public class SavePhotoMenuHandler extends BotCommand implements Handle{
         List<InlineKeyboardButton> firstRowInline = new ArrayList<>();
 
         InlineKeyboardButton savePhotoButton = new InlineKeyboardButton();
-        savePhotoButton.setText("Save downloaded photo");
+        savePhotoButton.setText("save downloaded photo");
         savePhotoButton.setCallbackData("SAVE_PHOTO");
 
         InlineKeyboardButton menuButton = new InlineKeyboardButton();
-        menuButton.setText("Back to main menu");
+        menuButton.setText("back to main menu");
         menuButton.setCallbackData("MENU");
 
         firstRowInline.add(savePhotoButton);

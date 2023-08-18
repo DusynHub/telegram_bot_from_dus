@@ -21,18 +21,18 @@ public class SavePhotoMessageHandler extends BotCommand implements Handle{
     public SendMessage handle(Message message) {
         long chatId = message.getChatId();
         User currentUser = message.getFrom();
-        String GetPhotoAnswer = String.format("Send photo, %s, please.", currentUser.getFirstName());
+        String GetPhotoAnswer
+                = String.format("Send photo with tags, %s, please.", currentUser.getFirstName());
 
         return getSendMessage(chatId, GetPhotoAnswer);
     }
 
     @Override
     public SendMessage handle(CallbackQuery query) {
-
         long chatId = query.getMessage().getChatId();
         User currentUser = query.getFrom();
-        String savePhotoMessage = String.format("Send photo, %s, please.", currentUser.getFirstName());
-
+        String savePhotoMessage
+                = String.format("Send photo, %s, please.", currentUser.getFirstName());
         return getSendMessage(chatId, savePhotoMessage);
     }
 

@@ -1,36 +1,51 @@
-package dev.dus.dusbot.commandHandlers;
+package dev.dus.dusbot.menuSenders;
 
-import lombok.NonNull;
+import dev.dus.dusbot.enums.MenuType;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
-import org.telegram.telegrambots.meta.api.objects.CallbackQuery;
-import org.telegram.telegrambots.meta.api.objects.Message;
-import org.telegram.telegrambots.meta.api.objects.commands.BotCommand;
+import org.telegram.telegrambots.meta.api.objects.Update;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.InlineKeyboardMarkup;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.InlineKeyboardButton;
+import org.telegram.telegrambots.meta.bots.AbsSender;
+import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 
 import java.util.ArrayList;
 import java.util.List;
 
-public class InlineMainMenuHandler extends BotCommand implements Handle{
 
-    public InlineMainMenuHandler() {
+public abstract class MainMenuSender extends MenuSender{
+
+    private MainMenuSender next;
+
+    protected AbsSender sender;
+
+    public MainMenuSender(AbsSender sender) {
+        super(sender);
     }
 
-    public InlineMainMenuHandler(@NonNull String command, @NonNull String description) {
-        super(command, description);
+
+    public static MainMenuSender link(MainMenuSender first, MainMenuSender... chain){
+        MainMenuSender head = first;
+
+        for(MainMenuSender nextLinkInChain : chain){
+            head.next = nextLinkInChain;
+            head = nextLinkInChain;
+        }
+
+        return first;
     }
 
-    @Override
-    public SendMessage handle(Message message) {
-        long chatId = message.getChatId();
-        return getSendMessage(chatId);
-    }
+    public boolean sendMenu(MenuType menuType, long chatId) {
+        if(menuType == MenuType.MAIN){
+            try {
+                sender.execute(getSendMessage(chatId));
+            } catch (TelegramApiException e) {
+                throw new RuntimeException(e);
+            }
+            return false;
+        }
+        return sendMenuNext(menuType, chatId);
+    };
 
-    @Override
-    public SendMessage handle(CallbackQuery query) {
-        long chatId = query.getMessage().getChatId();
-        return getSendMessage(chatId);
-    }
 
     private SendMessage getSendMessage(long chatId) {
         SendMessage sendMessage = new SendMessage();

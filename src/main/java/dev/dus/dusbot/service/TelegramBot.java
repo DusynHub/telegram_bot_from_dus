@@ -77,27 +77,42 @@ public class TelegramBot extends TelegramLongPollingBot {
         long chatId = -1;
         User currentUser = null;
 
-        if(update.hasMessage() && update.getMessage().hasText()){
+        if(update.hasMessage() && update.getMessage().hasText() && !update.getMessage().hasPhoto()){
             text = update.getMessage().getText();
             chatId = update.getMessage().getChatId();
 
-            if(!text.startsWith("/")){
-                log.info("Получено сообщение к боту по пути '{}'", text);
-                sendMessage(chatId, "This is not command for bot");
+            if(text.startsWith("/")){
+                Handle commandHandler = null;
+                if((commandHandler = commandHandlers.get(Commands.getCommand(extractCommandWithoutPostfix(text)))) != null){
+                    Message updatedMsg = update.getMessage();
+                    sendMessage(commandHandler.handle(updatedMsg));
+                } else {
+                    sendMessage(chatId, "Not available function yet");
+                }
+                callMainMenu(update);
                 return;
             }
 
-            Handle commandHandler = null;
-            if((commandHandler = commandHandlers.get(Commands.getCommand(extractCommandWithoutPostfix(text)))) != null){
-                Message update1 = update.getMessage();
-                sendMessage(commandHandler.handle(update1));
-                callMainMenu(update);
-                return;
-            } else {
-                sendMessage(chatId, "Not available function yet");
+            log.info("Получено сообщение к боту по пути '{}'", text);
+            sendMessage(chatId, "This is not command for bot");
+            callMainMenu(update);
+            return;
+        }
+
+        if (update.hasMessage() && update.getMessage().hasPhoto()) {
+            text = update.getMessage().getCaption();
+            chatId = update.getMessage().getChatId();
+
+            if(text.startsWith("#")){
+                String[] tags = text.split(" ");
+
                 callMainMenu(update);
                 return;
             }
+            log.info("Cообщение к боту по пути '{}'", text);
+            sendMessage(chatId, "Тэги к фото должны начинаться с символа '#'  и быть разделены пробелом");
+            callMainMenu(update);
+            return;
         }
 
         if(update.hasCallbackQuery()){
@@ -109,14 +124,16 @@ public class TelegramBot extends TelegramLongPollingBot {
                 return;
             }
 
+            if(action == SAVE_PHOTO){
+                sendMessage(commandHandlers.get(SAVE_PHOTO).handle(update.getMessage()));
+                return;
+            }
+
             if(action == MENU){
                 return;
             }
-            callMainMenu(update);
-        }
 
-        if(update.hasMessage()){
-            sendMessage(commandHandlers.get(SAVE_PHOTO).handle(update.getMessage()));
+            callMainMenu(update);
         }
     }
 
@@ -161,7 +178,4 @@ public class TelegramBot extends TelegramLongPollingBot {
         int atSignIndex = text.indexOf('@');
         return text.contains("@") ? text.substring(1, atSignIndex):text;
     }
-
-
-
 }
