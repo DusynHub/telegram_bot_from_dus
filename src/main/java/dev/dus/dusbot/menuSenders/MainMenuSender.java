@@ -1,6 +1,11 @@
 package dev.dus.dusbot.menuSenders;
 
 import dev.dus.dusbot.enums.MenuType;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.context.annotation.Lazy;
+import org.springframework.stereotype.Component;
+import org.telegram.telegrambots.bots.DefaultAbsSender;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.InlineKeyboardMarkup;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.InlineKeyboardButton;
@@ -10,13 +15,15 @@ import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 import java.util.ArrayList;
 import java.util.List;
 
-
+@Component("main_menu")
 public class MainMenuSender extends MenuSender{
 
-    public MainMenuSender(AbsSender messageSender) {
-        super(messageSender);
+    @Autowired
+    public MainMenuSender(
+        @Lazy DefaultAbsSender messageSender,
+        @Qualifier("return_to_main_menu") MenuSender next) {
+        super(messageSender,next);
     }
-
 
     public boolean sendMenu(MenuType menuType, long chatId) {
         if(menuType == MenuType.MAIN){

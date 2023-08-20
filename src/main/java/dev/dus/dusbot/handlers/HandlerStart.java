@@ -3,7 +3,10 @@ package dev.dus.dusbot.handlers;
 import dev.dus.dusbot.enums.MenuState;
 import dev.dus.dusbot.enums.MenuType;
 import dev.dus.dusbot.menuSenders.MenuSender;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.context.annotation.Lazy;
+import org.springframework.context.annotation.Primary;
 import org.springframework.stereotype.Component;
 import org.telegram.telegrambots.bots.DefaultAbsSender;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
@@ -15,13 +18,16 @@ import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 
 import java.util.Map;
 @Component
-@Qualifier("start")
+@Primary
 public class HandlerStart extends Handler {
 
-    public HandlerStart(DefaultAbsSender messageSender, MenuSender menuSender) {
-        super(messageSender, menuSender);
+    @Autowired
+    public HandlerStart(
+            @Lazy DefaultAbsSender messageSender,
+            @Qualifier("main_menu") MenuSender menuSender,
+            @Qualifier("help_handler") Handler next) {
+        super(messageSender, menuSender, next);
     }
-
 
     public boolean handle(Update update, Map<Long, MenuState> userMenuState) {
 

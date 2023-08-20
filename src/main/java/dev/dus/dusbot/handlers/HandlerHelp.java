@@ -3,7 +3,10 @@ package dev.dus.dusbot.handlers;
 import dev.dus.dusbot.enums.MenuState;
 import dev.dus.dusbot.enums.MenuType;
 import dev.dus.dusbot.menuSenders.MenuSender;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.context.annotation.Lazy;
+import org.springframework.stereotype.Component;
 import org.telegram.telegrambots.bots.DefaultAbsSender;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 import org.telegram.telegrambots.meta.api.objects.Message;
@@ -14,15 +17,20 @@ import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 
 import java.util.Map;
 
-@Qualifier("help")
+@Component("help_handler")
 public class HandlerHelp extends Handler {
+
 
     private static final String HELP_TEXT = "This is DusynBot \n\n" +
             "Type /start to receive welcome message\n\n" +
             "Type /help to receive help message again";
 
-    public HandlerHelp(DefaultAbsSender messageSender, MenuSender menuSender) {
-        super(messageSender, menuSender);
+    @Autowired
+    public HandlerHelp(
+            @Lazy DefaultAbsSender messageSender,
+            @Qualifier("main_menu")MenuSender menuSender,
+            @Qualifier("save_photo_message_callback") Handler next) {
+        super(null, menuSender, next);
     }
 
     public boolean handle(Update update, Map<Long, MenuState> userMenuState) {

@@ -1,6 +1,8 @@
 package dev.dus.dusbot.menuSenders;
 
 import dev.dus.dusbot.enums.MenuType;
+import dev.dus.dusbot.handlers.Handler;
+import org.telegram.telegrambots.bots.DefaultAbsSender;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 import org.telegram.telegrambots.meta.api.objects.Update;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.InlineKeyboardMarkup;
@@ -13,12 +15,13 @@ import java.util.List;
 
 public abstract class MenuSender {
 
-    protected AbsSender messageSender;
+    protected DefaultAbsSender messageSender;
 
     private MenuSender next;
 
-    public MenuSender(AbsSender messageSender) {
+    public MenuSender(DefaultAbsSender messageSender, MenuSender next) {
         this.messageSender = messageSender;
+        this.next = next;
     }
 
     public static MenuSender link(MenuSender first, MenuSender... chain){
