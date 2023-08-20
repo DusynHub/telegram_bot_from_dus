@@ -34,13 +34,19 @@ public class HandlerSavePhoto extends Handler {
             if (userMenuState.getOrDefault(userId, MenuState.START) != MenuState.SAVE_PHOTO_MESSAGE) {
                 return handleNext(update, userMenuState);
             }
-            java.io.File downloadedToBotChat = downloadPhotoByFilePath(getFilePath(getPhoto(message)));
             String currentDate = message.getDate().toString();
-
+            java.io.File downloadedToBotChat = downloadPhotoByFilePath(getFilePath(getPhoto(message)));
+            java.io.File localFile
+                    = new java.io.File("C:\\Users\\Kansa\\dev\\telegram_storage"+ "\\" + userId + "\\" + currentDate + ".png");
+//            try {
+//                localFile.createNewFile();
+//            } catch (IOException e) {
+//                throw new RuntimeException(e);
+//            }
             String savePhotoMessage = String.format("Dear %s, your photo have been saved", currentUser.getFirstName() );
             try(
                     FileInputStream downloadedToBotChatFileInputStream = new FileInputStream(downloadedToBotChat);
-                    FileOutputStream localFileOutputStream = new FileOutputStream("C:\\Users\\Kansa\\dev\\telegram_storage\\" + userId + "\\" + currentDate + ".png");
+                    FileOutputStream localFileOutputStream = new FileOutputStream(localFile);
                     BufferedInputStream bis = new BufferedInputStream(downloadedToBotChatFileInputStream);
                     BufferedOutputStream bos = new BufferedOutputStream(localFileOutputStream);
             ) {
