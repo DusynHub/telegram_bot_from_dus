@@ -1,19 +1,23 @@
 package dev.dus.dusbot.handlers;
 
+import dev.dus.dusbot.enums.MenuState;
 import dev.dus.dusbot.menuSenders.MenuSender;
+import org.telegram.telegrambots.bots.DefaultAbsSender;
 import org.telegram.telegrambots.meta.api.objects.Update;
 import org.telegram.telegrambots.meta.bots.AbsSender;
+
+import java.util.Map;
 
 
 public abstract class Handler {
 
-    protected AbsSender messageSender;
+    protected DefaultAbsSender messageSender;
 
     protected MenuSender menuSender;
 
     private Handler next;
 
-    public Handler(AbsSender messageSender, MenuSender menuSender) {
+    public Handler(DefaultAbsSender messageSender, MenuSender menuSender) {
         this.messageSender = messageSender;
         this.menuSender = menuSender;
     }
@@ -28,12 +32,12 @@ public abstract class Handler {
         return first;
     }
 
-    public abstract boolean handle(Update update);
+    public abstract boolean handle(Update update, Map<Long, MenuState> userMenuState);
 
-    protected boolean handleNext(Update update) {
+    protected boolean handleNext(Update update,  Map<Long, MenuState> userMenuState) {
         if (next == null) {
             return true;
         }
-        return next.handle(update);
+        return next.handle(update, userMenuState);
     }
 }

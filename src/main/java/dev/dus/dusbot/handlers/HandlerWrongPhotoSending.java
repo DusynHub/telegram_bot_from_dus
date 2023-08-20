@@ -3,39 +3,39 @@ package dev.dus.dusbot.handlers;
 import dev.dus.dusbot.enums.MenuState;
 import dev.dus.dusbot.enums.MenuType;
 import dev.dus.dusbot.menuSenders.MenuSender;
+import org.apache.commons.io.FileUtils;
 import org.telegram.telegrambots.bots.DefaultAbsSender;
+import org.telegram.telegrambots.meta.api.methods.GetFile;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
-import org.telegram.telegrambots.meta.api.objects.Message;
-import org.telegram.telegrambots.meta.api.objects.Update;
-import org.telegram.telegrambots.meta.api.objects.User;
-import org.telegram.telegrambots.meta.bots.AbsSender;
+import org.telegram.telegrambots.meta.api.objects.*;
 import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.util.Comparator;
+import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 
-public class HandlerStart extends Handler {
+public class HandlerWrongPhotoSending extends Handler {
 
-    public HandlerStart(DefaultAbsSender messageSender, MenuSender menuSender) {
+    public HandlerWrongPhotoSending(DefaultAbsSender messageSender, MenuSender menuSender) {
         super(messageSender, menuSender);
     }
 
 
     public boolean handle(Update update, Map<Long, MenuState> userMenuState) {
 
-        if (update.hasMessage() && update.getMessage().hasText() && !update.getMessage().hasPhoto()) {
+        if (update.hasMessage() && update.getMessage().hasPhoto()) {
             Message message = update.getMessage();
-
-            if (!message.getText().startsWith("/start")) {
-                return handleNext(update, userMenuState);
-            }
-
             long chatId = message.getChatId();
             User currentUser = message.getFrom();
-            String startAnswer = String.format("Hi, %s. It's DusynBot", currentUser.getFirstName());
+            long userId = message.getFrom().getId();
+            String savePhotoMessage = String.format("Dear %s, you cant't send photo in that menu", currentUser.getFirstName() );
             try {
-                messageSender.execute(getSendMessage(chatId, startAnswer));
+                messageSender.execute(getSendMessage(chatId, savePhotoMessage));
                 menuSender.sendMenu(MenuType.MAIN, chatId);
-                userMenuState.put(currentUser.getId(), MenuState.START);
+                userMenuState.put(userId, MenuState.START);
             } catch (TelegramApiException e) {
                 throw new RuntimeException(e);
             }
@@ -50,5 +50,4 @@ public class HandlerStart extends Handler {
         sendMessage.setText(startAnswer);
         return sendMessage;
     }
-
 }

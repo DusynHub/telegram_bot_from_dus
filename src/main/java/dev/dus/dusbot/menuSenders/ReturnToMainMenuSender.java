@@ -11,15 +11,14 @@ import java.util.ArrayList;
 import java.util.List;
 
 
-public class MainMenuSender extends MenuSender{
+public class ReturnToMainMenuSender extends MenuSender{
 
-    public MainMenuSender(AbsSender messageSender) {
+    public ReturnToMainMenuSender(AbsSender messageSender) {
         super(messageSender);
     }
 
-
     public boolean sendMenu(MenuType menuType, long chatId) {
-        if(menuType == MenuType.MAIN){
+        if(menuType == MenuType.BACK_TO_MAIN){
             try {
                 messageSender.execute(getSendMessage(chatId));
             } catch (TelegramApiException e) {
@@ -33,37 +32,18 @@ public class MainMenuSender extends MenuSender{
     private SendMessage getSendMessage(long chatId) {
         SendMessage sendMessage = new SendMessage();
         sendMessage.setChatId(chatId);
-        sendMessage.setText("DusynBot menu");
+        sendMessage.setText("press button if you want return to main menu");
 
         InlineKeyboardMarkup markUpInline = new InlineKeyboardMarkup();
         List<List<InlineKeyboardButton>> rowsInline = new ArrayList<>();
         List<InlineKeyboardButton> firstRowInline = new ArrayList<>();
-        List<InlineKeyboardButton> secondRowInline = new ArrayList<>();
-
-
-        InlineKeyboardButton startButton = new InlineKeyboardButton();
-        startButton.setText("Welcome message");
-        startButton.setCallbackData("START");
-
-        InlineKeyboardButton savePhotoButton = new InlineKeyboardButton();
-        savePhotoButton.setText("save photo");
-        savePhotoButton.setCallbackData("SAVE_PHOTO_MESSAGE");
-
-        InlineKeyboardButton getPhotoButton = new InlineKeyboardButton();
-        getPhotoButton.setText("get photo");
-        getPhotoButton.setCallbackData("GET_PHOTO");
 
         InlineKeyboardButton menuButton = new InlineKeyboardButton();
-        menuButton.setText("menu");
+        menuButton.setText("back to main menu");
         menuButton.setCallbackData("MENU");
 
-        firstRowInline.add(startButton);
         firstRowInline.add(menuButton);
         rowsInline.add(firstRowInline);
-
-        secondRowInline.add(savePhotoButton);
-        secondRowInline.add(getPhotoButton);
-        rowsInline.add(secondRowInline);
 
         markUpInline.setKeyboard(rowsInline);
         sendMessage.setReplyMarkup(markUpInline);

@@ -1,5 +1,7 @@
 package dev.dus.dusbot.enums;
 
 public enum MenuType {
-    MAIN
+    MAIN,
+    HELP,
+    BACK_TO_MAIN
 }
