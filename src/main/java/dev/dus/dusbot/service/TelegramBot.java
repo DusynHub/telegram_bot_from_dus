@@ -3,14 +3,10 @@ package dev.dus.dusbot.service;
 import dev.dus.dusbot.config.DusBotConfig;
 import dev.dus.dusbot.enums.MenuState;
 import dev.dus.dusbot.handlers.*;
-import dev.dus.dusbot.menuSenders.MainMenuSender;
 import dev.dus.dusbot.menuSenders.MenuSender;
-import dev.dus.dusbot.menuSenders.ReturnToMainMenuSender;
 import lombok.extern.slf4j.Slf4j;
-import org.checkerframework.checker.signature.qual.PrimitiveType;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.context.annotation.Primary;
 import org.springframework.stereotype.Component;
 import org.telegram.telegrambots.bots.TelegramLongPollingBot;
 import org.telegram.telegrambots.meta.api.methods.commands.SetMyCommands;
@@ -28,15 +24,20 @@ import java.util.Map;
 @Slf4j
 public class TelegramBot extends TelegramLongPollingBot {
 
+    private final Handler handler;
 
-    private  Handler handler;
-
+    private final MenuSender sender;
 
     private final DusBotConfig config;
 
     private final Map<Long, MenuState> userMenuState = new HashMap<>();
 
-    public TelegramBot(DusBotConfig config) {
+    @Autowired
+    public TelegramBot(@Qualifier("first") Handler handler,
+                       @Qualifier("main_menu") MenuSender sender,
+                       DusBotConfig config) {
+        this.handler = handler;
+        this.sender = sender;
         this.config = config;
         List<BotCommand> commands = new ArrayList<>();
         commands.add(new BotCommand("/start", "Welcome message"));
@@ -47,14 +48,6 @@ public class TelegramBot extends TelegramLongPollingBot {
             log.error("Something went wrong while bot initialization");
             throw new RuntimeException(e);
         }
-//        menuSender = MenuSender.link(new MainMenuSender(this),
-//                new ReturnToMainMenuSender(this));
-//        handler = Handler.link(new HandlerStart(this, menuSender),
-//                new HandlerHelp(this, menuSender),
-//                new HandlerStartCallback(this, menuSender),
-//                new HandlerSavePhotoMessageCallback(this, menuSender),
-//                new HandlerSavePhoto(this, menuSender),
-//                new HandlerWrongPhotoSending(this,menuSender));
     }
 
     @Override
@@ -69,17 +62,24 @@ public class TelegramBot extends TelegramLongPollingBot {
 
     @Override
     public void onUpdateReceived(Update update) {
+        initHandlersWithBot();
+        initMenuSenders();
         handler.handle(update, userMenuState);
     }
 
-    private String extractCommandWithoutPostfix(String text){
-        int atSignIndex = text.indexOf('@');
-        return text.contains("@") ? text.substring(1, atSignIndex):text;
+    private void initHandlersWithBot(){
+        Handler head = handler;
+        while(head!=null){
+            head.setMessageSender(this);
+            head = head.getNext();
+        }
     }
 
-    @Autowired
-    @Qualifier("first")
-    public void setHandler(Handler handler) {
-        this.handler = handler;
+    private void initMenuSenders(){
+        MenuSender head = sender;
+        while(head!=null){
+            head.setMessageSender(this);
+            head = head.getNext();
+        }
     }
 }

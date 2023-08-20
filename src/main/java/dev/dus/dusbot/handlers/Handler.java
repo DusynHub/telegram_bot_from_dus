@@ -2,23 +2,21 @@ package dev.dus.dusbot.handlers;
 
 import dev.dus.dusbot.enums.MenuState;
 import dev.dus.dusbot.menuSenders.MenuSender;
-import org.springframework.stereotype.Component;
-import org.telegram.telegrambots.bots.DefaultAbsSender;
+import dev.dus.dusbot.service.TelegramBot;
 import org.telegram.telegrambots.meta.api.objects.Update;
-import org.telegram.telegrambots.meta.bots.AbsSender;
 
 import java.util.Map;
 
 
 public abstract class Handler {
 
-    protected DefaultAbsSender messageSender;
+    protected TelegramBot messageSender;
 
     protected MenuSender menuSender;
 
     private Handler next;
 
-    public Handler(DefaultAbsSender messageSender, MenuSender menuSender, Handler next) {
+    public Handler(TelegramBot messageSender, MenuSender menuSender, Handler next) {
         this.messageSender = messageSender;
         this.menuSender = menuSender;
         this.next = next;
@@ -41,5 +39,13 @@ public abstract class Handler {
             return true;
         }
         return next.handle(update, userMenuState);
+    }
+
+    public void setMessageSender(TelegramBot messageSender) {
+        this.messageSender = messageSender;
+    }
+
+    public Handler getNext() {
+        return next;
     }
 }

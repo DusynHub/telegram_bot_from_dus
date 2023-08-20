@@ -3,30 +3,23 @@ package dev.dus.dusbot.handlers;
 import dev.dus.dusbot.enums.MenuState;
 import dev.dus.dusbot.enums.MenuType;
 import dev.dus.dusbot.menuSenders.MenuSender;
-import org.apache.commons.io.FileUtils;
+import dev.dus.dusbot.service.TelegramBot;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Component;
-import org.telegram.telegrambots.bots.DefaultAbsSender;
-import org.telegram.telegrambots.meta.api.methods.GetFile;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 import org.telegram.telegrambots.meta.api.objects.*;
 import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 
-import java.io.FileInputStream;
-import java.io.IOException;
-import java.util.Comparator;
-import java.util.List;
 import java.util.Map;
-import java.util.Objects;
 
 @Component("wrong_photo_sending")
 public class HandlerWrongPhotoSending extends Handler {
 
     @Autowired
     public HandlerWrongPhotoSending(
-            @Lazy DefaultAbsSender messageSender,
+            @Lazy TelegramBot messageSender,
             @Qualifier("main_menu") MenuSender menuSender,
             @Lazy Handler next) {
         super(messageSender, menuSender, null);

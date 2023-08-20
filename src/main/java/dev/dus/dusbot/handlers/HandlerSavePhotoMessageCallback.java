@@ -3,16 +3,15 @@ package dev.dus.dusbot.handlers;
 import dev.dus.dusbot.enums.MenuState;
 import dev.dus.dusbot.enums.MenuType;
 import dev.dus.dusbot.menuSenders.MenuSender;
+import dev.dus.dusbot.service.TelegramBot;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Component;
-import org.telegram.telegrambots.bots.DefaultAbsSender;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 import org.telegram.telegrambots.meta.api.objects.CallbackQuery;
 import org.telegram.telegrambots.meta.api.objects.Update;
 import org.telegram.telegrambots.meta.api.objects.User;
-import org.telegram.telegrambots.meta.bots.AbsSender;
 import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 
 import java.util.Map;
@@ -22,7 +21,7 @@ public class HandlerSavePhotoMessageCallback extends Handler {
 
     @Autowired
     public HandlerSavePhotoMessageCallback(
-            @Lazy DefaultAbsSender messageSender,
+            @Lazy TelegramBot messageSender,
             @Qualifier("main_menu") MenuSender menuSender,
             @Qualifier("save_photo") Handler next) {
         super(messageSender, menuSender, next);

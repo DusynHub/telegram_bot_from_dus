@@ -41,4 +41,16 @@ public abstract class MenuSender {
         }
         return next.sendMenu(menuType, chatId);
     }
+
+    public DefaultAbsSender getMessageSender() {
+        return messageSender;
+    }
+
+    public void setMessageSender(DefaultAbsSender messageSender) {
+        this.messageSender = messageSender;
+    }
+
+    public MenuSender getNext() {
+        return next;
+    }
 }
