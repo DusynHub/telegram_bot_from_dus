@@ -16,14 +16,14 @@ import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 
 import java.util.Map;
 
-@Component("save_photo_message_callback")
+@Component("handler_chain_link_4")
 public class HandlerSavePhotoMessageCallback extends Handler {
 
     @Autowired
     public HandlerSavePhotoMessageCallback(
             @Lazy TelegramBot messageSender,
             @Qualifier("main_menu") MenuSender menuSender,
-            @Qualifier("save_photo") Handler next) {
+            @Qualifier("handler_chain_link_5") Handler next) {
         super(messageSender, menuSender, next);
     }
 

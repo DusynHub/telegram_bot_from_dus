@@ -3,9 +3,13 @@ package dev.dus.dusbot.handlers;
 import dev.dus.dusbot.enums.MenuState;
 import dev.dus.dusbot.enums.MenuType;
 import dev.dus.dusbot.menuSenders.MenuSender;
+import dev.dus.dusbot.model.FilePath;
+import dev.dus.dusbot.repository.FilePathRepository;
 import dev.dus.dusbot.service.TelegramBot;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Component;
 import org.telegram.telegrambots.meta.api.methods.GetFile;
@@ -20,22 +24,26 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 
-@Component("save_photo")
+@Component("handler_chain_link_5")
+@ComponentScan("dev")
 public class HandlerSavePhoto extends Handler {
 
+    @Value("${file.path.prefix}")
+    private String filePathPrefix;
+
+    @Value("${file.path.storage.name}")
+    private String storageName;
+
+//    private final FilePathRepository filePathRepository;
 
     @Autowired
     public HandlerSavePhoto(
             @Lazy TelegramBot messageSender,
             @Qualifier("main_menu") MenuSender menuSender,
-            @Qualifier("wrong_photo_sending") Handler next) {
+            @Qualifier("handler_chain_link_6_last") Handler next, FilePathRepository filePathRepository) {
         super(messageSender, menuSender, next);
+//        this.filePathRepository = filePathRepository;
     }
-
-//    @Autowired
-//    public void setMessageSender(@Qualifier("telegram_bot") DefaultAbsSender messageSender) {
-//        this.messageSender = messageSender;
-//    }
 
     public boolean handle(Update update, Map<Long, MenuState> userMenuState) {
 
@@ -52,11 +60,13 @@ public class HandlerSavePhoto extends Handler {
             java.io.File downloadedToBotChat = downloadPhotoByFilePath(getFilePath(getPhoto(message)));
 
             java.io.File dir
-                    = new java.io.File("C:\\Users\\Kansa\\dev\\telegram_storage\\" + userId);
+                    = new java.io.File(filePathPrefix + "\\" + storageName +"\\" + userId);
             if(!dir.exists()){
                 dir.mkdirs();
             }
-            java.io.File localFile = new java.io.File( dir,currentDate + ".png");
+            String fileName = currentDate + ".png";
+
+            java.io.File localFile = new java.io.File( dir,fileName);
 
             String savePhotoMessage = String.format("Dear %s, your photo have been saved", currentUser.getFirstName() );
             try(
@@ -74,6 +84,15 @@ public class HandlerSavePhoto extends Handler {
                 messageSender.execute(getSendMessage(chatId, savePhotoMessage));
                 menuSender.sendMenu(MenuType.MAIN, chatId);
                 userMenuState.put(currentUser.getId(), MenuState.SAVE_PHOTO);
+
+//                Long insertedId = filePathRepository.addNewPhoto(new FilePath(
+//                        null,
+//                        filePathPrefix,
+//                        storageName,
+//                        userId,
+//                        fileName
+//                ));
+//                System.out.println(insertedId.longValue());
             } catch (IOException | TelegramApiException e) {
                 throw new RuntimeException(e);
             }

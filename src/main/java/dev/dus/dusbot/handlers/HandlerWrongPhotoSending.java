@@ -14,7 +14,7 @@ import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 
 import java.util.Map;
 
-@Component("wrong_photo_sending")
+@Component("handler_chain_link_6_last")
 public class HandlerWrongPhotoSending extends Handler {
 
     @Autowired

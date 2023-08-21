@@ -15,14 +15,14 @@ import org.telegram.telegrambots.meta.api.objects.User;
 import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 
 import java.util.Map;
-@Component("second")
+@Component("handler_chain_link_2")
 public class HandlerStart extends Handler {
 
     @Autowired
     public HandlerStart(
             @Lazy TelegramBot messageSender,
             @Qualifier("main_menu") MenuSender menuSender,
-            @Qualifier("help_handler") Handler next) {
+            @Qualifier("handler_chain_link_3") Handler next) {
         super(messageSender, menuSender, next);
     }
 

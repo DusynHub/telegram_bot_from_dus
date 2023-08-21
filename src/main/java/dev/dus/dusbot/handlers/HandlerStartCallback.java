@@ -16,14 +16,14 @@ import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 import javax.annotation.PostConstruct;
 import java.util.Map;
 
-@Component("first")
+@Component("handler_chain_link_1")
 public class HandlerStartCallback extends Handler {
 
 
     public HandlerStartCallback(
             @Lazy TelegramBot messageSender,
             @Qualifier("main_menu") MenuSender menuSender,
-            @Qualifier("second") Handler next) {
+            @Qualifier("handler_chain_link_2") Handler next) {
         super(messageSender, menuSender, next);
     }
 

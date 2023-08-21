@@ -16,7 +16,7 @@ import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 
 import java.util.Map;
 
-@Component("help_handler")
+@Component("handler_chain_link_3")
 public class HandlerHelp extends Handler {
 
 
@@ -28,7 +28,7 @@ public class HandlerHelp extends Handler {
     public HandlerHelp(
             @Lazy TelegramBot messageSender,
             @Qualifier("main_menu") MenuSender menuSender,
-            @Qualifier("save_photo_message_callback") Handler next) {
+            @Qualifier("handler_chain_link_4") Handler next) {
         super(null, menuSender, next);
     }
 

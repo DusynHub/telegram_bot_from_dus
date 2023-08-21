@@ -33,7 +33,7 @@ public class TelegramBot extends TelegramLongPollingBot {
     private final Map<Long, MenuState> userMenuState = new HashMap<>();
 
     @Autowired
-    public TelegramBot(@Qualifier("first") Handler handler,
+    public TelegramBot(@Qualifier("handler_chain_link_1") Handler handler,
                        @Qualifier("main_menu") MenuSender sender,
                        DusBotConfig config) {
         this.handler = handler;
