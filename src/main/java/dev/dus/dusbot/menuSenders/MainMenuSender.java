@@ -57,8 +57,8 @@ public class MainMenuSender extends MenuSender{
         savePhotoButton.setCallbackData("SAVE_PHOTO_MESSAGE");
 
         InlineKeyboardButton getPhotoButton = new InlineKeyboardButton();
-        getPhotoButton.setText("get photo");
-        getPhotoButton.setCallbackData("GET_PHOTO");
+        getPhotoButton.setText("get all your photos");
+        getPhotoButton.setCallbackData("GET_ALL_USER_PHOTO");
 
         InlineKeyboardButton menuButton = new InlineKeyboardButton();
         menuButton.setText("menu");

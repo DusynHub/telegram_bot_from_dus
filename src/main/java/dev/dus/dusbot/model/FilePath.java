@@ -25,4 +25,8 @@ public class FilePath {
         this.userId = userId;
         this.fileName = fileName;
     }
+
+    public String getPathInString(){
+        return filePathPrefix + "\\" + storageName + "\\" + userId  + "\\" + fileName;
+    }
 }

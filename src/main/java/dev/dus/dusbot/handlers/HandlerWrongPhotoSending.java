@@ -14,15 +14,15 @@ import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 
 import java.util.Map;
 
-@Component("handler_chain_link_6_last")
+@Component("handler_chain_link_6")
 public class HandlerWrongPhotoSending extends Handler {
 
     @Autowired
     public HandlerWrongPhotoSending(
             @Lazy TelegramBot messageSender,
             @Qualifier("main_menu") MenuSender menuSender,
-            @Lazy Handler next) {
-        super(messageSender, menuSender, null);
+            @Qualifier("handler_chain_link_7") Handler next) {
+        super(messageSender, menuSender, next);
     }
 
     public boolean handle(Update update, Map<Long, MenuState> userMenuState) {

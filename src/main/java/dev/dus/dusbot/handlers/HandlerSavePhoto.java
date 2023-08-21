@@ -34,15 +34,15 @@ public class HandlerSavePhoto extends Handler {
     @Value("${file.path.storage.name}")
     private String storageName;
 
-//    private final FilePathRepository filePathRepository;
+    private final FilePathRepository filePathRepository;
 
     @Autowired
     public HandlerSavePhoto(
             @Lazy TelegramBot messageSender,
             @Qualifier("main_menu") MenuSender menuSender,
-            @Qualifier("handler_chain_link_6_last") Handler next, FilePathRepository filePathRepository) {
+            @Qualifier("handler_chain_link_6") Handler next, FilePathRepository filePathRepository) {
         super(messageSender, menuSender, next);
-//        this.filePathRepository = filePathRepository;
+        this.filePathRepository = filePathRepository;
     }
 
     public boolean handle(Update update, Map<Long, MenuState> userMenuState) {
@@ -56,6 +56,17 @@ public class HandlerSavePhoto extends Handler {
             if (userMenuState.getOrDefault(userId, MenuState.START) != MenuState.SAVE_PHOTO_MESSAGE) {
                 return handleNext(update, userMenuState);
             }
+
+            String caption = message.getCaption();
+            if(!caption.startsWith("#")){
+                String answer = "Tags in caption should start with '#' symbol. Pls try again";
+                try {
+                    messageSender.execute(getSendMessage(chatId, answer));
+                } catch (TelegramApiException e) {
+                    throw new RuntimeException(e);
+                }
+            }
+
             String currentDate = message.getDate().toString();
             java.io.File downloadedToBotChat = downloadPhotoByFilePath(getFilePath(getPhoto(message)));
 
@@ -64,8 +75,8 @@ public class HandlerSavePhoto extends Handler {
             if(!dir.exists()){
                 dir.mkdirs();
             }
-            String fileName = currentDate + ".png";
 
+            String fileName = currentDate + ".png";
             java.io.File localFile = new java.io.File( dir,fileName);
 
             String savePhotoMessage = String.format("Dear %s, your photo have been saved", currentUser.getFirstName() );
@@ -75,24 +86,23 @@ public class HandlerSavePhoto extends Handler {
                     BufferedInputStream bis = new BufferedInputStream(downloadedToBotChatFileInputStream);
                     BufferedOutputStream bos = new BufferedOutputStream(localFileOutputStream);
             ) {
-                int b = 0;
-                while (b != -1){
-                    b = bis.read();
-                    bos.write(b);
+                int byteReaderCounter = 0;
+                while (byteReaderCounter != -1){
+                    byteReaderCounter = bis.read();
+                    bos.write(byteReaderCounter);
                 }
                 //FileUtils.copyInputStreamToFile(new FileInputStream(downloadedToBotChat), localFile);
                 messageSender.execute(getSendMessage(chatId, savePhotoMessage));
                 menuSender.sendMenu(MenuType.MAIN, chatId);
                 userMenuState.put(currentUser.getId(), MenuState.SAVE_PHOTO);
-
-//                Long insertedId = filePathRepository.addNewPhoto(new FilePath(
-//                        null,
-//                        filePathPrefix,
-//                        storageName,
-//                        userId,
-//                        fileName
-//                ));
-//                System.out.println(insertedId.longValue());
+                Long insertedId = filePathRepository.addNewPhoto(new FilePath(
+                        null,
+                        filePathPrefix,
+                        storageName,
+                        userId,
+                        fileName
+                ));
+                System.out.println(insertedId.longValue());
             } catch (IOException | TelegramApiException e) {
                 throw new RuntimeException(e);
             }
@@ -109,16 +119,11 @@ public class HandlerSavePhoto extends Handler {
     }
 
     private PhotoSize getPhoto(Message message) {
-        // Check that the update contains a message and the message has a photo
-
         if (message.hasPhoto()) {
-            // When receiving a photo, you usually get different sizes of it
             List<PhotoSize> photos = message.getPhoto();
-            // We fetch the bigger photo
             return photos.stream()
                     .max(Comparator.comparing(PhotoSize::getFileSize)).orElse(null);
         }
-        // Return null if not found
         return null;
     }
 
@@ -127,9 +132,7 @@ public class HandlerSavePhoto extends Handler {
         GetFile getFileMethod = new GetFile();
         getFileMethod.setFileId(photo.getFileId());
         try {
-            // We execute the method using AbsSender::execute method.
             File file = messageSender.execute(getFileMethod);
-            // We now have the file_path
             return file.getFilePath();
         } catch (TelegramApiException e) {
             e.printStackTrace();
@@ -139,12 +142,10 @@ public class HandlerSavePhoto extends Handler {
 
     public java.io.File downloadPhotoByFilePath(String filePath) {
         try {
-            // Download the file calling AbsSender::downloadFile method
             return messageSender.downloadFile(filePath);
         } catch (TelegramApiException e) {
             e.printStackTrace();
         }
         return null;
     }
-
 }
