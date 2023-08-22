@@ -36,7 +36,10 @@ public class SavePhotoInfoCallback extends Handler {
                 long chatId = callbackQuery.getMessage().getChatId();
                 User currentUser = callbackQuery.getFrom();
                 String savePhotoMessage
-                        = String.format("Send photo, %s, please.", currentUser.getFirstName());
+                        = String.format("Send one photo, %s, please.\n" +
+                                        "You can send multiple photos,\n" +
+                                        " but only first will be saved\n",
+                        currentUser.getFirstName());
                 try {
                     messageSender.execute(getSendMessage(chatId, savePhotoMessage));
                     menuSender.sendMenu(MenuType.BACK_TO_MAIN, chatId);

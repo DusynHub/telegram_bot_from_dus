@@ -37,8 +37,11 @@ public class StartCallback extends Handler {
             if (callbackQuery.getData().equals("START")) {
                 long chatId = callbackQuery.getMessage().getChatId();
                 User currentUser = callbackQuery.getFrom();
-                String startAnswer = String.format("Hi, %s. It's DusynBot",
-                        currentUser.getFirstName());
+                String startAnswer =
+                        String.format(  "Hi, %s. It's DusynBot \n" +
+                                        "You can save photo with tag \n" +
+                                        "And then get photo(s) by multiple tags \n"
+                                , currentUser.getFirstName());
                 try {
                     messageSender.execute(getSendMessage(chatId, startAnswer));
                     menuSender.sendMenu(MenuType.MAIN, chatId);

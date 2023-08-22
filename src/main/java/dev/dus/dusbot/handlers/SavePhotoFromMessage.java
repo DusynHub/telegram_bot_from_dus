@@ -2,17 +2,13 @@ package dev.dus.dusbot.handlers;
 
 import dev.dus.dusbot.enums.MenuState;
 import dev.dus.dusbot.enums.MenuType;
-import dev.dus.dusbot.menuSenders.MenuSender;
 import dev.dus.dusbot.model.FilePath;
 import dev.dus.dusbot.model.Tag;
 import dev.dus.dusbot.repository.FilePathRepository;
-import dev.dus.dusbot.service.TelegramBot;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.ComponentScan;
-import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Component;
 import org.telegram.telegrambots.meta.api.methods.GetFile;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
@@ -26,7 +22,7 @@ import java.util.*;
 @Component
 @ComponentScan("dev")
 @Slf4j
-public class SavePhotoMessage extends Handler {
+public class SavePhotoFromMessage extends Handler {
 
     @Value("${file.path.prefix}")
     private String filePathPrefix;
@@ -37,7 +33,7 @@ public class SavePhotoMessage extends Handler {
     private final FilePathRepository filePathRepository;
 
     @Autowired
-    public SavePhotoMessage(
+    public SavePhotoFromMessage(
             FilePathRepository filePathRepository
     ) {
         super(null, null, null);

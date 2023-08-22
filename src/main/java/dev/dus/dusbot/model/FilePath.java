@@ -1,7 +1,6 @@
 package dev.dus.dusbot.model;
 
 import lombok.Getter;
-import lombok.RequiredArgsConstructor;
 import lombok.Setter;
 
 @Getter

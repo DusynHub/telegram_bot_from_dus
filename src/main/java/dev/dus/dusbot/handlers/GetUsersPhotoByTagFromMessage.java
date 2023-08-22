@@ -18,12 +18,12 @@ import java.util.Map;
 
 @Component
 @Slf4j
-public class GetUsersPhotoByTagMessage extends Handler {
+public class GetUsersPhotoByTagFromMessage extends Handler {
 
     private final FilePathRepository filePathRepository;
 
     @Autowired
-    public GetUsersPhotoByTagMessage(
+    public GetUsersPhotoByTagFromMessage(
             FilePathRepository filePathRepository
     ) {
         super(null, null, null);

@@ -2,14 +2,10 @@ package dev.dus.dusbot.handlers;
 
 import dev.dus.dusbot.enums.MenuState;
 import dev.dus.dusbot.enums.MenuType;
-import dev.dus.dusbot.menuSenders.MenuSender;
 import dev.dus.dusbot.model.FilePath;
 import dev.dus.dusbot.repository.FilePathRepository;
-import dev.dus.dusbot.service.TelegramBot;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Component;
 import org.telegram.telegrambots.meta.api.methods.send.SendPhoto;
 import org.telegram.telegrambots.meta.api.objects.CallbackQuery;
@@ -30,9 +26,6 @@ public class GetUsersPhotoCallback extends Handler {
 
     @Autowired
     public GetUsersPhotoCallback(
-            @Lazy TelegramBot messageSender,
-            @Lazy MenuSender menuSender,
-            @Lazy Handler next,
             FilePathRepository filePathRepository
     ) {
         super(null, null, null);
