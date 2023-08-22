@@ -4,6 +4,7 @@ import dev.dus.dusbot.enums.MenuState;
 import dev.dus.dusbot.enums.MenuType;
 import dev.dus.dusbot.menuSenders.MenuSender;
 import dev.dus.dusbot.model.FilePath;
+import dev.dus.dusbot.model.Tag;
 import dev.dus.dusbot.repository.FilePathRepository;
 import dev.dus.dusbot.service.TelegramBot;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -19,10 +20,7 @@ import org.telegram.telegrambots.meta.api.objects.File;
 import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 
 import java.io.*;
-import java.util.Comparator;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
+import java.util.*;
 
 @Component("handler_chain_link_5")
 @ComponentScan("dev")
@@ -52,57 +50,70 @@ public class HandlerSavePhoto extends Handler {
             long chatId = message.getChatId();
             User currentUser = message.getFrom();
             long userId = message.getFrom().getId();
+            String caption = message.getCaption();
 
             if (userMenuState.getOrDefault(userId, MenuState.START) != MenuState.SAVE_PHOTO_MESSAGE) {
                 return handleNext(update, userMenuState);
             }
 
-            String caption = message.getCaption();
-            if(!caption.startsWith("#")){
-                String answer = "Tags in caption should start with '#' symbol. Pls try again";
+            if (!caption.startsWith("#")) {
+                String answer = "Tags in caption should start with '#' symbol. Pls try again " +
+                        "Please send photo with tags in caption";
                 try {
                     messageSender.execute(getSendMessage(chatId, answer));
+                    menuSender.sendMenu(MenuType.BACK_TO_MAIN, chatId);
                 } catch (TelegramApiException e) {
                     throw new RuntimeException(e);
                 }
+                return false;
             }
 
             String currentDate = message.getDate().toString();
             java.io.File downloadedToBotChat = downloadPhotoByFilePath(getFilePath(getPhoto(message)));
-
             java.io.File dir
-                    = new java.io.File(filePathPrefix + "\\" + storageName +"\\" + userId);
-            if(!dir.exists()){
+                    = new java.io.File(filePathPrefix + "\\" + storageName + "\\" + userId);
+            if (!dir.exists()) {
                 dir.mkdirs();
             }
 
             String fileName = currentDate + ".png";
-            java.io.File localFile = new java.io.File( dir,fileName);
+            java.io.File localFile = new java.io.File(dir, fileName);
 
-            String savePhotoMessage = String.format("Dear %s, your photo have been saved", currentUser.getFirstName() );
-            try(
+            String savePhotoMessage = String.format("Dear %s, your photo have been saved", currentUser.getFirstName());
+            try (
                     FileInputStream downloadedToBotChatFileInputStream = new FileInputStream(downloadedToBotChat);
                     FileOutputStream localFileOutputStream = new FileOutputStream(localFile);
                     BufferedInputStream bis = new BufferedInputStream(downloadedToBotChatFileInputStream);
                     BufferedOutputStream bos = new BufferedOutputStream(localFileOutputStream);
             ) {
                 int byteReaderCounter = 0;
-                while (byteReaderCounter != -1){
+                while (byteReaderCounter != -1) {
                     byteReaderCounter = bis.read();
                     bos.write(byteReaderCounter);
                 }
                 //FileUtils.copyInputStreamToFile(new FileInputStream(downloadedToBotChat), localFile);
-                messageSender.execute(getSendMessage(chatId, savePhotoMessage));
-                menuSender.sendMenu(MenuType.MAIN, chatId);
                 userMenuState.put(currentUser.getId(), MenuState.SAVE_PHOTO);
-                Long insertedId = filePathRepository.addNewPhoto(new FilePath(
+                Long insertedPhotoId = filePathRepository.addNewPhoto(new FilePath(
                         null,
                         filePathPrefix,
                         storageName,
                         userId,
                         fileName
                 ));
-                System.out.println(insertedId.longValue());
+
+                String[] tags = Arrays.copyOfRange(caption.split("#"), 1, caption.split("#").length);
+                List<Long> tagIds = new ArrayList<>();
+                for (String tag : tags) {
+                    tagIds.add(filePathRepository.addNewTag(new Tag(null, tag)));
+                }
+
+                for (Long tagId : tagIds) {
+                    filePathRepository.addNewFilePathToTag(insertedPhotoId, tagId);
+                }
+
+                messageSender.execute(getSendMessage(chatId, savePhotoMessage));
+                menuSender.sendMenu(MenuType.MAIN, chatId);
+                System.out.println(insertedPhotoId.longValue());
             } catch (IOException | TelegramApiException e) {
                 throw new RuntimeException(e);
             }

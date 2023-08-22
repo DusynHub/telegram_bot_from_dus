@@ -38,8 +38,8 @@ public class HandlerGetAllUserPhotoCallback extends Handler {
     public HandlerGetAllUserPhotoCallback(
             @Lazy TelegramBot messageSender,
             @Qualifier("main_menu") MenuSender menuSender,
-            @Lazy Handler next, FilePathRepository filePathRepository) {
-        super(messageSender, menuSender, null);
+            @Qualifier("handler_chain_link_8") Handler next, FilePathRepository filePathRepository) {
+        super(messageSender, menuSender, next);
         this.filePathRepository = filePathRepository;
     }
 

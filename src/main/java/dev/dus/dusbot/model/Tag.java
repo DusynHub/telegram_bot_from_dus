@@ -11,4 +11,8 @@ public class Tag {
 
     String tag;
 
+    public Tag(Long id, String tag) {
+        this.id = id;
+        this.tag = tag;
+    }
 }

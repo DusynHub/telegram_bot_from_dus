@@ -60,11 +60,13 @@ public class FilePathRepositoryImpl implements FilePathRepository {
         return insertedFilePathId;
     }
 
+
     @Override
     public Long addNewTag(Tag tag) {
         String sql =
                 "INSERT INTO tags(tag) " +
-                        "VALUES(?)";
+                "VALUES(?) " +
+                "ON CONFLICT (tag) DO UPDATE SET tag=tags.tag";
 
         Long insertedFilePathId = null;
 
@@ -182,7 +184,7 @@ public class FilePathRepositoryImpl implements FilePathRepository {
                         ", ppw.user_id" +
                         ", ppw.file_name " +
                         ", t.tag " +
-                "HAVING COUNT() = ? ";
+                "HAVING COUNT(ppw.id) = ? ";
 
         try(
                 Connection connection = dataSource.getConnection();

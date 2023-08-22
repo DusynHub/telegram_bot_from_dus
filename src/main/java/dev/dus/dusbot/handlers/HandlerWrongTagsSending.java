@@ -9,37 +9,36 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Component;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
-import org.telegram.telegrambots.meta.api.objects.*;
+import org.telegram.telegrambots.meta.api.objects.Message;
+import org.telegram.telegrambots.meta.api.objects.Update;
+import org.telegram.telegrambots.meta.api.objects.User;
 import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 
 import java.util.Map;
 
-@Component("handler_chain_link_6")
-public class HandlerWrongPhotoSending extends Handler {
+@Component("handler_chain_link_8")
+public class HandlerWrongTagsSending extends Handler {
 
     @Autowired
-    public HandlerWrongPhotoSending(
+    public HandlerWrongTagsSending(
             @Lazy TelegramBot messageSender,
             @Qualifier("main_menu") MenuSender menuSender,
-            @Qualifier("handler_chain_link_7") Handler next) {
-        super(messageSender, menuSender, next);
+            @Lazy Handler next) {
+        super(messageSender, menuSender, null);
     }
 
     public boolean handle(Update update, Map<Long, MenuState> userMenuState) {
 
         if (update.hasMessage()
-                && update.getMessage().hasPhoto()) {
+                && update.getMessage().hasText()
+                && !update.getMessage().hasPhoto()) {
             Message message = update.getMessage();
             long chatId = message.getChatId();
             User currentUser = message.getFrom();
             long userId = message.getFrom().getId();
-            String savePhotoMessage = String.format("Dear %s, you cant't send photo in that menu", currentUser.getFirstName() );
 
-            if (userMenuState.getOrDefault(userId, MenuState.START)
-                    != MenuState.SAVE_PHOTO_MESSAGE) {
-                return handleNext(update, userMenuState);
-            }
-
+            String savePhotoMessage = String.format("Dear %s, you cant't text without photo in that menu",
+                    currentUser.getFirstName() );
             try {
                 messageSender.execute(getSendMessage(chatId, savePhotoMessage));
                 menuSender.sendMenu(MenuType.MAIN, chatId);

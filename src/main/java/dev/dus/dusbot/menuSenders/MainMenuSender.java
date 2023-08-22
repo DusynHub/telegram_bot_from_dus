@@ -46,6 +46,7 @@ public class MainMenuSender extends MenuSender{
         List<List<InlineKeyboardButton>> rowsInline = new ArrayList<>();
         List<InlineKeyboardButton> firstRowInline = new ArrayList<>();
         List<InlineKeyboardButton> secondRowInline = new ArrayList<>();
+        List<InlineKeyboardButton> thirdRowInLine = new ArrayList<>();
 
 
         InlineKeyboardButton startButton = new InlineKeyboardButton();
@@ -64,6 +65,10 @@ public class MainMenuSender extends MenuSender{
         menuButton.setText("menu");
         menuButton.setCallbackData("MENU");
 
+        InlineKeyboardButton getPhotoByTagsButton = new InlineKeyboardButton();
+        getPhotoByTagsButton.setText("get photo by tags");
+        getPhotoByTagsButton.setCallbackData("GET_PHOTO_BY_TAGS_MESSAGE");
+
         firstRowInline.add(startButton);
         firstRowInline.add(menuButton);
         rowsInline.add(firstRowInline);
@@ -71,6 +76,9 @@ public class MainMenuSender extends MenuSender{
         secondRowInline.add(savePhotoButton);
         secondRowInline.add(getPhotoButton);
         rowsInline.add(secondRowInline);
+
+        thirdRowInLine.add(getPhotoByTagsButton);
+        rowsInline.add(thirdRowInLine);
 
         markUpInline.setKeyboard(rowsInline);
         sendMessage.setReplyMarkup(markUpInline);
