@@ -10,7 +10,9 @@ import org.springframework.stereotype.Repository;
 import javax.sql.DataSource;
 import java.sql.*;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
+import java.util.Objects;
 
 @Repository
 public class FilePathRepositoryImpl implements FilePathRepository {
@@ -162,9 +164,9 @@ public class FilePathRepositoryImpl implements FilePathRepository {
 
 
     @Override
-    public List<FilePath> getAllUserPhotosByTag(long userId, List<String> tags) {
+    public List<FilePath> getAllUserPhotosByTag(long userId, Object[] tags) {
         List<FilePath> result =  new ArrayList<>();
-        int havingParam = tags.size();
+        int havingParam = tags.length;
 
         String sql =
                 "SELECT    ppw.id " +
@@ -175,9 +177,9 @@ public class FilePathRepositoryImpl implements FilePathRepository {
                         ", t.tag " +
                 "FROM photo_path_win ppw " +
                 "INNER JOIN photo_path_win_to_tags ppwtt ON ppw.id = ppwtt.photo_id " +
-                "INNER JOIN tag t ON ppwtt.tag_id = t.id " +
+                "INNER JOIN tags t ON ppwtt.tag_id = t.id " +
                 "WHERE ppw.user_id = ? " +
-                                    "AND t.tag = ANY(?) " +
+                                    "AND t.tag = ANY (?) " +
                 "GROUP BY  ppw.id " +
                         ", ppw.file_path_prefix" +
                         ", ppw.storage_name" +
@@ -191,8 +193,8 @@ public class FilePathRepositoryImpl implements FilePathRepository {
                 PreparedStatement pstmt = connection.prepareStatement(sql,
                         Statement.RETURN_GENERATED_KEYS);
         ){
-            String[] tagsStr = tags.toArray(new String[0]);
-            Array tagsToInsert = connection.createArrayOf("tags", tagsStr);
+            Array tagsToInsert = connection.createArrayOf("text", tags);
+            System.out.println(tagsToInsert.toString());
             pstmt.setLong(1, userId);
             pstmt.setArray(2, tagsToInsert);
             pstmt.setInt(3, havingParam);

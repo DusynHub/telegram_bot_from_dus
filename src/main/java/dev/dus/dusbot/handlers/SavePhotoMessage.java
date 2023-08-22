@@ -22,9 +22,9 @@ import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 import java.io.*;
 import java.util.*;
 
-@Component("handler_chain_link_5")
+@Component
 @ComponentScan("dev")
-public class HandlerSavePhoto extends Handler {
+public class SavePhotoMessage extends Handler {
 
     @Value("${file.path.prefix}")
     private String filePathPrefix;
@@ -35,11 +35,13 @@ public class HandlerSavePhoto extends Handler {
     private final FilePathRepository filePathRepository;
 
     @Autowired
-    public HandlerSavePhoto(
+    public SavePhotoMessage(
             @Lazy TelegramBot messageSender,
-            @Qualifier("main_menu") MenuSender menuSender,
-            @Qualifier("handler_chain_link_6") Handler next, FilePathRepository filePathRepository) {
-        super(messageSender, menuSender, next);
+            @Lazy MenuSender menuSender,
+            @Lazy Handler next,
+            FilePathRepository filePathRepository
+    ) {
+        super(null, null, null);
         this.filePathRepository = filePathRepository;
     }
 
@@ -56,7 +58,7 @@ public class HandlerSavePhoto extends Handler {
                 return handleNext(update, userMenuState);
             }
 
-            if (!caption.startsWith("#")) {
+            if (caption == null || !caption.startsWith("#")) {
                 String answer = "Tags in caption should start with '#' symbol. Pls try again " +
                         "Please send photo with tags in caption";
                 try {

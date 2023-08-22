@@ -9,17 +9,16 @@ import org.telegram.telegrambots.bots.DefaultAbsSender;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.InlineKeyboardMarkup;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.InlineKeyboardButton;
-import org.telegram.telegrambots.meta.bots.AbsSender;
 import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 
 import java.util.ArrayList;
 import java.util.List;
 
 @Component("main_menu")
-public class MainMenuSender extends MenuSender{
+public class MainMenu extends MenuSender{
 
     @Autowired
-    public MainMenuSender(
+    public MainMenu(
         @Lazy DefaultAbsSender messageSender,
         @Qualifier("return_to_main_menu") MenuSender next) {
         super(messageSender,next);
@@ -59,7 +58,7 @@ public class MainMenuSender extends MenuSender{
 
         InlineKeyboardButton getPhotoButton = new InlineKeyboardButton();
         getPhotoButton.setText("get all your photos");
-        getPhotoButton.setCallbackData("GET_ALL_USER_PHOTO");
+        getPhotoButton.setCallbackData("GET_USERS_PHOTO");
 
         InlineKeyboardButton menuButton = new InlineKeyboardButton();
         menuButton.setText("menu");

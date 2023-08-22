@@ -9,44 +9,43 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Component;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
-import org.telegram.telegrambots.meta.api.objects.Message;
+import org.telegram.telegrambots.meta.api.objects.CallbackQuery;
 import org.telegram.telegrambots.meta.api.objects.Update;
 import org.telegram.telegrambots.meta.api.objects.User;
 import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 
 import java.util.Map;
 
-@Component("handler_chain_link_8")
-public class HandlerWrongTagsSending extends Handler {
+@Component
+public class SavePhotoInfoCallback extends Handler {
 
     @Autowired
-    public HandlerWrongTagsSending(
+    public SavePhotoInfoCallback(
             @Lazy TelegramBot messageSender,
-            @Qualifier("main_menu") MenuSender menuSender,
-            @Lazy Handler next) {
-        super(messageSender, menuSender, null);
+            @Lazy MenuSender menuSender,
+            @Lazy Handler next
+    ) {
+        super(null, null, null);
     }
 
     public boolean handle(Update update, Map<Long, MenuState> userMenuState) {
 
-        if (update.hasMessage()
-                && update.getMessage().hasText()
-                && !update.getMessage().hasPhoto()) {
-            Message message = update.getMessage();
-            long chatId = message.getChatId();
-            User currentUser = message.getFrom();
-            long userId = message.getFrom().getId();
-
-            String savePhotoMessage = String.format("Dear %s, you cant't text without photo in that menu",
-                    currentUser.getFirstName() );
-            try {
-                messageSender.execute(getSendMessage(chatId, savePhotoMessage));
-                menuSender.sendMenu(MenuType.MAIN, chatId);
-                userMenuState.put(userId, MenuState.START);
-            } catch (TelegramApiException e) {
-                throw new RuntimeException(e);
+        if (update.hasCallbackQuery()) {
+            CallbackQuery callbackQuery = update.getCallbackQuery();
+            if (callbackQuery.getData().equals("SAVE_PHOTO_MESSAGE")) {
+                long chatId = callbackQuery.getMessage().getChatId();
+                User currentUser = callbackQuery.getFrom();
+                String savePhotoMessage
+                        = String.format("Send photo, %s, please.", currentUser.getFirstName());
+                try {
+                    messageSender.execute(getSendMessage(chatId, savePhotoMessage));
+                    menuSender.sendMenu(MenuType.BACK_TO_MAIN, chatId);
+                    userMenuState.put(currentUser.getId(), MenuState.SAVE_PHOTO_MESSAGE);
+                } catch (TelegramApiException e) {
+                    throw new RuntimeException(e);
+                }
+                return false;
             }
-            return false;
         }
         return handleNext(update, userMenuState);
     }
@@ -57,4 +56,5 @@ public class HandlerWrongTagsSending extends Handler {
         sendMessage.setText(startAnswer);
         return sendMessage;
     }
+
 }

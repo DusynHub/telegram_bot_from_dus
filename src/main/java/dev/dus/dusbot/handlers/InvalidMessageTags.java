@@ -16,37 +16,34 @@ import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 
 import java.util.Map;
 
-@Component("handler_chain_link_3")
-public class HandlerHelp extends Handler {
-
-
-    private static final String HELP_TEXT = "This is DusynBot \n\n" +
-            "Type /start to receive welcome message\n\n" +
-            "Type /help to receive help message again";
+@Component
+public class InvalidMessageTags extends Handler {
 
     @Autowired
-    public HandlerHelp(
+    public InvalidMessageTags(
             @Lazy TelegramBot messageSender,
-            @Qualifier("main_menu") MenuSender menuSender,
-            @Qualifier("handler_chain_link_4") Handler next) {
-        super(null, menuSender, next);
+            @Lazy MenuSender menuSender,
+            @Lazy Handler next
+    ) {
+        super(null, null, null);
     }
 
     public boolean handle(Update update, Map<Long, MenuState> userMenuState) {
-        if (update.hasMessage() && update.getMessage().hasText() && !update.getMessage().hasPhoto()) {
 
+        if (update.hasMessage()
+                && update.getMessage().hasText()
+                && !update.getMessage().hasPhoto()) {
             Message message = update.getMessage();
-
-            if (!message.getText().startsWith("/help")) {
-                return handleNext(update, userMenuState);
-            }
-
             long chatId = message.getChatId();
             User currentUser = message.getFrom();
+            long userId = message.getFrom().getId();
+
+            String savePhotoMessage = String.format("Dear %s, you cant't text without photo in that menu",
+                    currentUser.getFirstName() );
             try {
-                messageSender.execute(getSendMessage(chatId));
+                messageSender.execute(getSendMessage(chatId, savePhotoMessage));
                 menuSender.sendMenu(MenuType.MAIN, chatId);
-                userMenuState.put(currentUser.getId(), MenuState.HELP);
+                userMenuState.put(userId, MenuState.START);
             } catch (TelegramApiException e) {
                 throw new RuntimeException(e);
             }
@@ -55,11 +52,10 @@ public class HandlerHelp extends Handler {
         return handleNext(update, userMenuState);
     }
 
-    private  SendMessage getSendMessage(long chatId) {
+    private SendMessage getSendMessage(long chatId, String startAnswer) {
         SendMessage sendMessage = new SendMessage();
         sendMessage.setChatId(chatId);
-        sendMessage.setText(HELP_TEXT);
+        sendMessage.setText(startAnswer);
         return sendMessage;
     }
-
 }

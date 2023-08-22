@@ -3,7 +3,9 @@ package dev.dus.dusbot.service;
 import dev.dus.dusbot.config.DusBotConfig;
 import dev.dus.dusbot.enums.MenuState;
 import dev.dus.dusbot.handlers.*;
+import dev.dus.dusbot.menuSenders.MainMenu;
 import dev.dus.dusbot.menuSenders.MenuSender;
+import dev.dus.dusbot.menuSenders.ReturnToMainMenu;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -20,34 +22,67 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-@Component("telegram_bot")
+@Component
 @Slf4j
 public class TelegramBot extends TelegramLongPollingBot {
 
-    private final Handler handler;
+    private  Handler handler;
 
-    private final MenuSender sender;
+    private MenuSender sender;
+
+    private boolean isInitialized = false;
 
     private final DusBotConfig config;
 
     private final Map<Long, MenuState> userMenuState = new HashMap<>();
 
     @Autowired
-    public TelegramBot(@Qualifier("handler_chain_link_1") Handler handler,
-                       @Qualifier("main_menu") MenuSender sender,
+    public TelegramBot(StartCommand startCommand,
+                       HelpCommand helpCommand,
+                       StartCallback startCallback,
+                       SavePhotoInfoCallback savePhotoInfoCallback,
+                       GetPhotoByTagInfoCallback getPhotoByTagInfoCallback,
+                       GetUsersPhotoCallback getUsersPhotoCallback,
+                       SavePhotoMessage savePhotoMessage,
+                       GetUsersPhotoByTagMessage getUsersPhotoByTagMessage,
+                       InvalidMessageTags invalidMessageTags,
+                       InvalidMessageWithPhoto invalidMessageWithPhoto,
+                       MainMenu mainMenu,
+                       ReturnToMainMenu returnToMainMenu,
+                       MainMenuCallback mainMenuCallback,
                        DusBotConfig config) {
-        this.handler = handler;
-        this.sender = sender;
         this.config = config;
         List<BotCommand> commands = new ArrayList<>();
         commands.add(new BotCommand("/start", "Welcome message"));
         commands.add(new BotCommand("/help", "Help information"));
+        String commandsStr = commands.stream().map( curCom-> (curCom.getCommand() + "")).toString();
+        log.info("Bot command: commandsStr  were registered");
         try{
             this.execute(new SetMyCommands(commands, new BotCommandScopeDefault(), null));
         } catch (TelegramApiException e){
             log.error("Something went wrong while bot initialization");
             throw new RuntimeException(e);
         }
+
+        sender = MenuSender.link(
+                mainMenu,
+                returnToMainMenu
+        );
+
+        handler = Handler.link(
+                startCommand,
+                helpCommand,
+                startCallback,
+                savePhotoInfoCallback,
+                mainMenuCallback,
+                savePhotoMessage,
+                getUsersPhotoByTagMessage,
+                getPhotoByTagInfoCallback,
+                getUsersPhotoCallback,
+                invalidMessageTags,
+                invalidMessageWithPhoto
+        );
+
     }
 
     @Override
@@ -62,20 +97,31 @@ public class TelegramBot extends TelegramLongPollingBot {
 
     @Override
     public void onUpdateReceived(Update update) {
-        initHandlersWithBot();
-        initMenuSenders();
+        log.info("Update received");
+        initializeBot();
         handler.handle(update, userMenuState);
     }
+
+
+    private void initializeBot(){
+        if(!isInitialized){
+            initMenuSendersWithBot();
+            initHandlersWithBot();
+            isInitialized = true;
+        }
+    }
+
 
     private void initHandlersWithBot(){
         Handler head = handler;
         while(head!=null){
             head.setMessageSender(this);
+            head.setMenuSender(sender);
             head = head.getNext();
         }
     }
 
-    private void initMenuSenders(){
+    private void initMenuSendersWithBot(){
         MenuSender head = sender;
         while(head!=null){
             head.setMessageSender(this);

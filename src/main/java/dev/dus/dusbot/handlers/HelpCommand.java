@@ -9,41 +9,45 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Component;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
-import org.telegram.telegrambots.meta.api.objects.*;
+import org.telegram.telegrambots.meta.api.objects.Message;
+import org.telegram.telegrambots.meta.api.objects.Update;
+import org.telegram.telegrambots.meta.api.objects.User;
 import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 
 import java.util.Map;
 
-@Component("handler_chain_link_6")
-public class HandlerWrongPhotoSending extends Handler {
+@Component
+public class HelpCommand extends Handler {
+
+
+    private static final String HELP_TEXT = "This is DusynBot \n\n" +
+            "Type /start to receive welcome message\n\n" +
+            "Type /help to receive help message again";
 
     @Autowired
-    public HandlerWrongPhotoSending(
+    public HelpCommand(
             @Lazy TelegramBot messageSender,
-            @Qualifier("main_menu") MenuSender menuSender,
-            @Qualifier("handler_chain_link_7") Handler next) {
-        super(messageSender, menuSender, next);
+            @Lazy MenuSender menuSender,
+            @Lazy Handler next
+    ) {
+        super(null, null, null);
     }
 
     public boolean handle(Update update, Map<Long, MenuState> userMenuState) {
+        if (update.hasMessage() && update.getMessage().hasText() && !update.getMessage().hasPhoto()) {
 
-        if (update.hasMessage()
-                && update.getMessage().hasPhoto()) {
             Message message = update.getMessage();
-            long chatId = message.getChatId();
-            User currentUser = message.getFrom();
-            long userId = message.getFrom().getId();
-            String savePhotoMessage = String.format("Dear %s, you cant't send photo in that menu", currentUser.getFirstName() );
 
-            if (userMenuState.getOrDefault(userId, MenuState.START)
-                    != MenuState.SAVE_PHOTO_MESSAGE) {
+            if (!message.getText().startsWith("/help")) {
                 return handleNext(update, userMenuState);
             }
 
+            long chatId = message.getChatId();
+            User currentUser = message.getFrom();
             try {
-                messageSender.execute(getSendMessage(chatId, savePhotoMessage));
+                messageSender.execute(getSendMessage(chatId));
                 menuSender.sendMenu(MenuType.MAIN, chatId);
-                userMenuState.put(userId, MenuState.START);
+                userMenuState.put(currentUser.getId(), MenuState.HELP);
             } catch (TelegramApiException e) {
                 throw new RuntimeException(e);
             }
@@ -52,10 +56,11 @@ public class HandlerWrongPhotoSending extends Handler {
         return handleNext(update, userMenuState);
     }
 
-    private SendMessage getSendMessage(long chatId, String startAnswer) {
+    private  SendMessage getSendMessage(long chatId) {
         SendMessage sendMessage = new SendMessage();
         sendMessage.setChatId(chatId);
-        sendMessage.setText(startAnswer);
+        sendMessage.setText(HELP_TEXT);
         return sendMessage;
     }
+
 }

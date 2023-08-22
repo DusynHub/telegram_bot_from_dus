@@ -16,5 +16,5 @@ public interface FilePathRepository {
 
     List<FilePath> getAllPhotosByUserId(long userId);
 
-    List<FilePath> getAllUserPhotosByTag(long userId, List<String> tags);
+    List<FilePath> getAllUserPhotosByTag(long userId, Object[] tags);
 }

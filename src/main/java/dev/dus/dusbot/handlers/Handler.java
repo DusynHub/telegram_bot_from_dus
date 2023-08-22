@@ -3,11 +3,14 @@ package dev.dus.dusbot.handlers;
 import dev.dus.dusbot.enums.MenuState;
 import dev.dus.dusbot.menuSenders.MenuSender;
 import dev.dus.dusbot.service.TelegramBot;
+import lombok.Getter;
+import lombok.Setter;
 import org.telegram.telegrambots.meta.api.objects.Update;
 
 import java.util.Map;
 
-
+@Getter
+@Setter
 public abstract class Handler {
 
     protected TelegramBot messageSender;
@@ -39,10 +42,6 @@ public abstract class Handler {
             return true;
         }
         return next.handle(update, userMenuState);
-    }
-
-    public void setMessageSender(TelegramBot messageSender) {
-        this.messageSender = messageSender;
     }
 
     public Handler getNext() {
