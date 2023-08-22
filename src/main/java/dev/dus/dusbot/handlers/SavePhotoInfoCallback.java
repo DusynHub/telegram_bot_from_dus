@@ -2,12 +2,8 @@ package dev.dus.dusbot.handlers;
 
 import dev.dus.dusbot.enums.MenuState;
 import dev.dus.dusbot.enums.MenuType;
-import dev.dus.dusbot.menuSenders.MenuSender;
-import dev.dus.dusbot.service.TelegramBot;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Component;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 import org.telegram.telegrambots.meta.api.objects.CallbackQuery;
@@ -23,9 +19,6 @@ public class SavePhotoInfoCallback extends Handler {
 
     @Autowired
     public SavePhotoInfoCallback(
-            @Lazy TelegramBot messageSender,
-            @Lazy MenuSender menuSender,
-            @Lazy Handler next
     ) {
         super(null, null, null);
         log.info("[{}]>>> {} bean has been created",
@@ -34,7 +27,9 @@ public class SavePhotoInfoCallback extends Handler {
     }
 
     public boolean handle(Update update, Map<Long, MenuState> userMenuState) {
-
+        log.info("[{}]>>> {} request to check 'update'",
+                this.getClass().getSimpleName(),
+                this.getClass().getSimpleName());
         if (update.hasCallbackQuery()) {
             CallbackQuery callbackQuery = update.getCallbackQuery();
             if (callbackQuery.getData().equals("SAVE_PHOTO_MESSAGE")) {
@@ -49,9 +44,18 @@ public class SavePhotoInfoCallback extends Handler {
                 } catch (TelegramApiException e) {
                     throw new RuntimeException(e);
                 }
+                log.info("[{}]>>> {} answered to {} callback",
+                        this.getClass().getSimpleName(),
+                        this.getClass().getSimpleName(),
+                        callbackQuery.getData());
                 return false;
             }
+            log.info("[{}]>>> Callback data = {} is not equal to SAVE_PHOTO_MESSAGE",
+                    this.getClass().getSimpleName(),
+                    callbackQuery.getData());
         }
+        log.info("[{}]>>> requested method handleNext(update,  userMenuState)",
+                this.getClass().getSimpleName());
         return handleNext(update, userMenuState);
     }
 

@@ -2,11 +2,7 @@ package dev.dus.dusbot.handlers;
 
 import dev.dus.dusbot.enums.MenuState;
 import dev.dus.dusbot.enums.MenuType;
-import dev.dus.dusbot.menuSenders.MenuSender;
-import dev.dus.dusbot.service.TelegramBot;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Component;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 import org.telegram.telegrambots.meta.api.objects.CallbackQuery;
@@ -22,9 +18,6 @@ public class StartCallback extends Handler {
 
 
     public StartCallback(
-            @Lazy TelegramBot messageSender,
-            @Lazy MenuSender menuSender,
-            @Lazy Handler next
     ) {
         super(null, null, null);
         log.info("[{}]>>> {} bean has been created",
@@ -34,15 +27,18 @@ public class StartCallback extends Handler {
 
 
     public boolean handle(Update update, Map<Long, MenuState> userMenuState) {
-        log.info("[{}]>>> {} request to check update",
+
+        log.info("[{}]>>> {} request to check 'update'",
                 this.getClass().getSimpleName(),
                 this.getClass().getSimpleName());
+
         if (update.hasCallbackQuery()) {
             CallbackQuery callbackQuery = update.getCallbackQuery();
             if (callbackQuery.getData().equals("START")) {
                 long chatId = callbackQuery.getMessage().getChatId();
                 User currentUser = callbackQuery.getFrom();
-                String startAnswer = String.format("Hi, %s. It's DusynBot", currentUser.getFirstName());
+                String startAnswer = String.format("Hi, %s. It's DusynBot",
+                        currentUser.getFirstName());
                 try {
                     messageSender.execute(getSendMessage(chatId, startAnswer));
                     menuSender.sendMenu(MenuType.MAIN, chatId);
@@ -53,10 +49,11 @@ public class StartCallback extends Handler {
                 return false;
             }
             log.info("[{}]>>> Callback data = {} is not equal to START",
-                    this.getClass().getSimpleName(),
-                    callbackQuery.getData());
+                this.getClass().getSimpleName(),
+                callbackQuery.getData());
         }
-        log.info("[{}]>>> requested method handleNext(update,  userMenuState)", this.getClass().getSimpleName());
+        log.info("[{}]>>> requested method handleNext(update,  userMenuState)",
+                this.getClass().getSimpleName());
         return handleNext(update,  userMenuState);
     }
 

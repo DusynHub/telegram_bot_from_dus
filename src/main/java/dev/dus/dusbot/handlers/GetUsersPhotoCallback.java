@@ -44,6 +44,10 @@ public class GetUsersPhotoCallback extends Handler {
 
     public boolean handle(Update update, Map<Long, MenuState> userMenuState) {
 
+        log.info("[{}]>>> {} request to check 'update'",
+                this.getClass().getSimpleName(),
+                this.getClass().getSimpleName());
+
         if (update.hasCallbackQuery()) {
             CallbackQuery callbackQuery = update.getCallbackQuery();
             if (callbackQuery.getData().equals("GET_USERS_PHOTO")) {

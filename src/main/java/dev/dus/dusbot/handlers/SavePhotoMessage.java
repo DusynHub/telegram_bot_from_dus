@@ -38,9 +38,6 @@ public class SavePhotoMessage extends Handler {
 
     @Autowired
     public SavePhotoMessage(
-            @Lazy TelegramBot messageSender,
-            @Lazy MenuSender menuSender,
-            @Lazy Handler next,
             FilePathRepository filePathRepository
     ) {
         super(null, null, null);
@@ -51,7 +48,9 @@ public class SavePhotoMessage extends Handler {
     }
 
     public boolean handle(Update update, Map<Long, MenuState> userMenuState) {
-
+        log.info("[{}]>>> {} request to check 'update'",
+                this.getClass().getSimpleName(),
+                this.getClass().getSimpleName());
         if (update.hasMessage() && update.getMessage().hasPhoto()) {
             Message message = update.getMessage();
             long chatId = message.getChatId();
@@ -60,10 +59,17 @@ public class SavePhotoMessage extends Handler {
             String caption = message.getCaption();
 
             if (userMenuState.getOrDefault(userId, MenuState.START) != MenuState.SAVE_PHOTO_MESSAGE) {
+                log.info("[{}]>>> {} received photo in a wrong menu. Previous menu must be {}",
+                        this.getClass().getSimpleName(),
+                        this.getClass().getSimpleName(),
+                        MenuState.SAVE_PHOTO_MESSAGE);
                 return handleNext(update, userMenuState);
             }
 
             if (caption == null || !caption.startsWith("#")) {
+                log.info("[{}]>>> {} received photo with wrong tags in caption",
+                        this.getClass().getSimpleName(),
+                        this.getClass().getSimpleName());
                 String answer = "Tags in caption should start with '#' symbol. Pls try again " +
                         "Please send photo with tags in caption";
                 try {
@@ -72,6 +78,9 @@ public class SavePhotoMessage extends Handler {
                 } catch (TelegramApiException e) {
                     throw new RuntimeException(e);
                 }
+                log.info("[{}]>>> {} sent message to send photo with correct tags",
+                        this.getClass().getSimpleName(),
+                        this.getClass().getSimpleName());
                 return false;
             }
 
@@ -120,12 +129,19 @@ public class SavePhotoMessage extends Handler {
 
                 messageSender.execute(getSendMessage(chatId, savePhotoMessage));
                 menuSender.sendMenu(MenuType.MAIN, chatId);
-                System.out.println(insertedPhotoId.longValue());
+
+                log.info("[{}]>>> {} photo with tags: {} has been saved",
+                        this.getClass().getSimpleName(),
+                        this.getClass().getSimpleName(),
+                        Arrays.toString(tags));
+
             } catch (IOException | TelegramApiException e) {
                 throw new RuntimeException(e);
             }
             return false;
         }
+        log.info("[{}]>>> requested method handleNext(update,  userMenuState)",
+                this.getClass().getSimpleName());
         return handleNext(update, userMenuState);
     }
 
@@ -137,6 +153,8 @@ public class SavePhotoMessage extends Handler {
     }
 
     private PhotoSize getPhoto(Message message) {
+        log.info("[{}]>>> requested method getPhoto(Message message)",
+                this.getClass().getSimpleName());
         if (message.hasPhoto()) {
             List<PhotoSize> photos = message.getPhoto();
             return photos.stream()
@@ -146,6 +164,8 @@ public class SavePhotoMessage extends Handler {
     }
 
     public String getFilePath(PhotoSize photo) {
+        log.info("[{}]>>> requested method getFilePath(PhotoSize photo)",
+                this.getClass().getSimpleName());
         Objects.requireNonNull(photo);
         GetFile getFileMethod = new GetFile();
         getFileMethod.setFileId(photo.getFileId());
@@ -159,6 +179,8 @@ public class SavePhotoMessage extends Handler {
     }
 
     public java.io.File downloadPhotoByFilePath(String filePath) {
+        log.info("[{}]>>> requested method downloadPhotoByFilePath(String filePath)",
+                this.getClass().getSimpleName());
         try {
             return messageSender.downloadFile(filePath);
         } catch (TelegramApiException e) {

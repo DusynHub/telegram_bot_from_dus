@@ -8,7 +8,6 @@ import dev.dus.dusbot.menuSenders.MenuSender;
 import dev.dus.dusbot.menuSenders.ReturnToMainMenu;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Component;
 import org.telegram.telegrambots.bots.TelegramLongPollingBot;
 import org.telegram.telegrambots.meta.api.methods.commands.SetMyCommands;
@@ -26,9 +25,9 @@ import java.util.Map;
 @Slf4j
 public class TelegramBot extends TelegramLongPollingBot {
 
-    private  Handler handler;
+    private final Handler handler;
 
-    private MenuSender sender;
+    private final MenuSender sender;
 
     private boolean isInitialized = false;
 

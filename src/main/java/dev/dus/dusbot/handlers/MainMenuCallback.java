@@ -27,10 +27,6 @@ public class MainMenuCallback extends Handler {
 
     @Autowired
     public MainMenuCallback(
-            @Lazy TelegramBot messageSender,
-            @Lazy MenuSender menuSender,
-            @Lazy Handler next,
-            FilePathRepository filePathRepository
     ) {
         super(null, null, null);
         log.info("[{}]>>> {} bean has been created",
@@ -40,6 +36,10 @@ public class MainMenuCallback extends Handler {
 
     public boolean handle(Update update, Map<Long, MenuState> userMenuState) {
 
+        log.info("[{}]>>> {} request to check 'update'",
+                this.getClass().getSimpleName(),
+                this.getClass().getSimpleName());
+
         if (update.hasCallbackQuery()) {
             CallbackQuery callbackQuery = update.getCallbackQuery();
             if (callbackQuery.getData().equals("MENU")) {
@@ -47,7 +47,13 @@ public class MainMenuCallback extends Handler {
                 menuSender.sendMenu(MenuType.MAIN, chatId);
                 return false;
             }
+            log.info("[{}]>>> Callback data = {} is not equal to MENU",
+                    this.getClass().getSimpleName(),
+                    callbackQuery.getData());
+
         }
+        log.info("[{}]>>> requested method handleNext(update,  userMenuState)",
+                this.getClass().getSimpleName());
         return handleNext(update, userMenuState);
     }
 }

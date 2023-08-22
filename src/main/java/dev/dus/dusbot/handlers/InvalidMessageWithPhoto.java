@@ -20,11 +20,7 @@ import java.util.Map;
 public class InvalidMessageWithPhoto extends Handler {
 
     @Autowired
-    public InvalidMessageWithPhoto(
-            @Lazy TelegramBot messageSender,
-            @Lazy MenuSender menuSender,
-            @Lazy Handler next
-    ) {
+    public InvalidMessageWithPhoto() {
         super(null, null, null);
         log.info("[{}]>>> {} bean has been created",
                 this.getClass().getSimpleName(),
@@ -33,28 +29,36 @@ public class InvalidMessageWithPhoto extends Handler {
 
     public boolean handle(Update update, Map<Long, MenuState> userMenuState) {
 
+        log.info("[{}]>>> {} request to check 'update'",
+                this.getClass().getSimpleName(),
+                this.getClass().getSimpleName());
+
         if (update.hasMessage()
                 && update.getMessage().hasPhoto()) {
             Message message = update.getMessage();
             long chatId = message.getChatId();
             User currentUser = message.getFrom();
             long userId = message.getFrom().getId();
-            String savePhotoMessage = String.format("Dear %s, you cant't send photo in that menu", currentUser.getFirstName() );
-
-//            if (userMenuState.getOrDefault(userId, MenuState.START)
-//                    != MenuState.SAVE_PHOTO_MESSAGE) {
-//                return handleNext(update, userMenuState);
-//            }
+            String invalidMessageWithPhotoAnswer = String.format("Dear %s, you cant't send photo in that menu", currentUser.getFirstName());
 
             try {
-                messageSender.execute(getSendMessage(chatId, savePhotoMessage));
+                messageSender.execute(getSendMessage(chatId, invalidMessageWithPhotoAnswer));
                 menuSender.sendMenu(MenuType.MAIN, chatId);
                 userMenuState.put(userId, MenuState.START);
             } catch (TelegramApiException e) {
                 throw new RuntimeException(e);
             }
+
+            log.info("[{}]>>> {} sent message {}",
+                    this.getClass().getSimpleName(),
+                    this.getClass().getSimpleName(),
+                    invalidMessageWithPhotoAnswer);
             return false;
         }
+
+        log.info("[{}]>>> requested method handleNext(update,  userMenuState)",
+                this.getClass().getSimpleName());
+
         return handleNext(update, userMenuState);
     }
 

@@ -22,11 +22,7 @@ import java.util.Map;
 public class InvalidMessageTags extends Handler {
 
     @Autowired
-    public InvalidMessageTags(
-            @Lazy TelegramBot messageSender,
-            @Lazy MenuSender menuSender,
-            @Lazy Handler next
-    ) {
+    public InvalidMessageTags() {
         super(null, null, null);
         log.info("[{}]>>> {} bean has been created",
                 this.getClass().getSimpleName(),
@@ -34,6 +30,10 @@ public class InvalidMessageTags extends Handler {
     }
 
     public boolean handle(Update update, Map<Long, MenuState> userMenuState) {
+
+        log.info("[{}]>>> {} request to check 'update'",
+                this.getClass().getSimpleName(),
+                this.getClass().getSimpleName());
 
         if (update.hasMessage()
                 && update.getMessage().hasText()
@@ -43,17 +43,25 @@ public class InvalidMessageTags extends Handler {
             User currentUser = message.getFrom();
             long userId = message.getFrom().getId();
 
-            String savePhotoMessage = String.format("Dear %s, you cant't text without photo in that menu",
-                    currentUser.getFirstName() );
+            String invalidMessageTags = String.format("Dear %s, you cant't text without photo in that menu",
+                    currentUser.getFirstName());
             try {
-                messageSender.execute(getSendMessage(chatId, savePhotoMessage));
+                messageSender.execute(getSendMessage(chatId, invalidMessageTags));
                 menuSender.sendMenu(MenuType.MAIN, chatId);
                 userMenuState.put(userId, MenuState.START);
             } catch (TelegramApiException e) {
                 throw new RuntimeException(e);
             }
+            log.info("[{}]>>> {} sent message {}",
+                    this.getClass().getSimpleName(),
+                    this.getClass().getSimpleName(),
+                    invalidMessageTags);
             return false;
         }
+
+        log.info("[{}]>>> requested method handleNext(update,  userMenuState)",
+                this.getClass().getSimpleName());
+
         return handleNext(update, userMenuState);
     }
 

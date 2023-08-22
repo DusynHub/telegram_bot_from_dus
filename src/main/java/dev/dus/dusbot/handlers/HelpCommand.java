@@ -28,9 +28,6 @@ public class HelpCommand extends Handler {
 
     @Autowired
     public HelpCommand(
-            @Lazy TelegramBot messageSender,
-            @Lazy MenuSender menuSender,
-            @Lazy Handler next
     ) {
         super(null, null, null);
         log.info("[{}]>>> {} bean has been created",
@@ -58,7 +55,6 @@ public class HelpCommand extends Handler {
                         this.getClass().getSimpleName(),
                         message.getText());
             } catch (TelegramApiException e) {
-                log.info("[{}]>>> requested method handleNext(update,  userMenuState)", this.getClass().getSimpleName());
                 throw new RuntimeException(e);
             }
             return false;
@@ -67,7 +63,7 @@ public class HelpCommand extends Handler {
         return handleNext(update, userMenuState);
     }
 
-    private  SendMessage getSendMessage(long chatId) {
+    private SendMessage getSendMessage(long chatId) {
         SendMessage sendMessage = new SendMessage();
         sendMessage.setChatId(chatId);
         sendMessage.setText(HELP_TEXT);

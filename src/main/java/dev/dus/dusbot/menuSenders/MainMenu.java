@@ -1,6 +1,7 @@
 package dev.dus.dusbot.menuSenders;
 
 import dev.dus.dusbot.enums.MenuType;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Lazy;
@@ -14,14 +15,13 @@ import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 import java.util.ArrayList;
 import java.util.List;
 
-@Component("main_menu")
+@Component
+@Slf4j
 public class MainMenu extends MenuSender{
 
     @Autowired
-    public MainMenu(
-        @Lazy DefaultAbsSender messageSender,
-        @Qualifier("return_to_main_menu") MenuSender next) {
-        super(messageSender,next);
+    public MainMenu() {
+        super(null,null);
     }
 
     public boolean sendMenu(MenuType menuType, long chatId) {
@@ -37,6 +37,12 @@ public class MainMenu extends MenuSender{
     }
 
     private SendMessage getSendMessage(long chatId) {
+
+        log.info("[{}]>>> {} request send menu to chat = {}",
+                this.getClass().getSimpleName(),
+                this.getClass().getSimpleName(),
+                chatId);
+
         SendMessage sendMessage = new SendMessage();
         sendMessage.setChatId(chatId);
         sendMessage.setText("DusynBot menu");
