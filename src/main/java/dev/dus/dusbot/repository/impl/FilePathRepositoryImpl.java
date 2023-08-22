@@ -174,7 +174,6 @@ public class FilePathRepositoryImpl implements FilePathRepository {
                         ", ppw.storage_name" +
                         ", ppw.user_id" +
                         ", ppw.file_name " +
-                        ", t.tag " +
                 "FROM photo_path_win ppw " +
                 "INNER JOIN photo_path_win_to_tags ppwtt ON ppw.id = ppwtt.photo_id " +
                 "INNER JOIN tags t ON ppwtt.tag_id = t.id " +
@@ -185,7 +184,6 @@ public class FilePathRepositoryImpl implements FilePathRepository {
                         ", ppw.storage_name" +
                         ", ppw.user_id" +
                         ", ppw.file_name " +
-                        ", t.tag " +
                 "HAVING COUNT(ppw.id) = ? ";
 
         try(

@@ -56,11 +56,11 @@ public class TelegramBot extends TelegramLongPollingBot {
         commands.add(new BotCommand("/start", "Welcome message"));
         commands.add(new BotCommand("/help", "Help information"));
         String commandsStr = commands.stream().map( curCom-> (curCom.getCommand() + "")).toString();
-        log.info("Bot command: commandsStr  were registered");
+        log.info("[DUSYN BOT]>>> Bot command: {}  were registered", commandsStr);
         try{
             this.execute(new SetMyCommands(commands, new BotCommandScopeDefault(), null));
         } catch (TelegramApiException e){
-            log.error("Something went wrong while bot initialization");
+            log.error("[DUSYN BOT]>>> Something went wrong while bot initialization");
             throw new RuntimeException(e);
         }
 
@@ -97,7 +97,7 @@ public class TelegramBot extends TelegramLongPollingBot {
 
     @Override
     public void onUpdateReceived(Update update) {
-        log.info("Update received");
+        log.info("[DUSYN BOT]>>> Update received");
         initializeBot();
         handler.handle(update, userMenuState);
     }
@@ -108,6 +108,7 @@ public class TelegramBot extends TelegramLongPollingBot {
             initMenuSendersWithBot();
             initHandlersWithBot();
             isInitialized = true;
+            log.info("[DUSYN BOT]>>> Dusyn bot has been initialized");
         }
     }
 
@@ -119,6 +120,7 @@ public class TelegramBot extends TelegramLongPollingBot {
             head.setMenuSender(sender);
             head = head.getNext();
         }
+        log.info("[DUSYN BOT]>>> Dusyn bot handlers have been initialized");
     }
 
     private void initMenuSendersWithBot(){
@@ -127,5 +129,6 @@ public class TelegramBot extends TelegramLongPollingBot {
             head.setMessageSender(this);
             head = head.getNext();
         }
+        log.info("[DUSYN BOT]>>> Dusyn bot senders have been initialized");
     }
 }

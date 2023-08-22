@@ -6,6 +6,7 @@ import dev.dus.dusbot.menuSenders.MenuSender;
 import dev.dus.dusbot.model.FilePath;
 import dev.dus.dusbot.repository.FilePathRepository;
 import dev.dus.dusbot.service.TelegramBot;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Lazy;
@@ -22,6 +23,7 @@ import java.util.List;
 import java.util.Map;
 
 @Component
+@Slf4j
 public class GetUsersPhotoCallback extends Handler {
 
     private final FilePathRepository filePathRepository;
@@ -35,6 +37,9 @@ public class GetUsersPhotoCallback extends Handler {
     ) {
         super(null, null, null);
         this.filePathRepository = filePathRepository;
+        log.info("[{}]>>> {} bean has been created",
+                this.getClass().getSimpleName(),
+                this.getClass().getSimpleName());
     }
 
     public boolean handle(Update update, Map<Long, MenuState> userMenuState) {
@@ -64,6 +69,7 @@ public class GetUsersPhotoCallback extends Handler {
                 return false;
             }
         }
+        log.info("[{}]>>> requested method handleNext(update,  userMenuState)", this.getClass().getSimpleName());
         return handleNext(update, userMenuState);
     }
 }

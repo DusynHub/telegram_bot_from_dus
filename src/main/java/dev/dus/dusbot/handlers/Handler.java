@@ -5,12 +5,14 @@ import dev.dus.dusbot.menuSenders.MenuSender;
 import dev.dus.dusbot.service.TelegramBot;
 import lombok.Getter;
 import lombok.Setter;
+import lombok.extern.slf4j.Slf4j;
 import org.telegram.telegrambots.meta.api.objects.Update;
 
 import java.util.Map;
 
 @Getter
 @Setter
+@Slf4j
 public abstract class Handler {
 
     protected TelegramBot messageSender;
@@ -25,19 +27,22 @@ public abstract class Handler {
         this.next = next;
     }
 
-    public static Handler link(Handler first, Handler... chain){
+    public static Handler link(Handler first, Handler... chain) {
         Handler head = first;
 
-        for(Handler nextLinkInChain : chain){
-            head.next = nextLinkInChain;
-            head = nextLinkInChain;
+        log.info("[Handler]>>> {} is first link chain", head.getClass().getSimpleName());
+
+        for (int i = 0; i < chain.length; i++) {
+            head.next = chain[i];
+            head = chain[i];
+            log.info("[Handler]>>> {} is {} link chain", head.getClass().getSimpleName(), i + 2);
         }
         return first;
     }
 
     public abstract boolean handle(Update update, Map<Long, MenuState> userMenuState);
 
-    protected boolean handleNext(Update update,  Map<Long, MenuState> userMenuState) {
+    protected boolean handleNext(Update update, Map<Long, MenuState> userMenuState) {
         if (next == null) {
             return true;
         }

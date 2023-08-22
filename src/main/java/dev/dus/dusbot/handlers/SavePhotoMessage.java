@@ -7,6 +7,7 @@ import dev.dus.dusbot.model.FilePath;
 import dev.dus.dusbot.model.Tag;
 import dev.dus.dusbot.repository.FilePathRepository;
 import dev.dus.dusbot.service.TelegramBot;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
@@ -24,6 +25,7 @@ import java.util.*;
 
 @Component
 @ComponentScan("dev")
+@Slf4j
 public class SavePhotoMessage extends Handler {
 
     @Value("${file.path.prefix}")
@@ -43,6 +45,9 @@ public class SavePhotoMessage extends Handler {
     ) {
         super(null, null, null);
         this.filePathRepository = filePathRepository;
+        log.info("[{}]>>> {} bean has been created",
+                this.getClass().getSimpleName(),
+                this.getClass().getSimpleName());
     }
 
     public boolean handle(Update update, Map<Long, MenuState> userMenuState) {

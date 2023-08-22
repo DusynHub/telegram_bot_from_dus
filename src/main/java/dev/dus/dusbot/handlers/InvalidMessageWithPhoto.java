@@ -4,6 +4,7 @@ import dev.dus.dusbot.enums.MenuState;
 import dev.dus.dusbot.enums.MenuType;
 import dev.dus.dusbot.menuSenders.MenuSender;
 import dev.dus.dusbot.service.TelegramBot;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Lazy;
@@ -15,6 +16,7 @@ import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 import java.util.Map;
 
 @Component
+@Slf4j
 public class InvalidMessageWithPhoto extends Handler {
 
     @Autowired
@@ -24,6 +26,9 @@ public class InvalidMessageWithPhoto extends Handler {
             @Lazy Handler next
     ) {
         super(null, null, null);
+        log.info("[{}]>>> {} bean has been created",
+                this.getClass().getSimpleName(),
+                this.getClass().getSimpleName());
     }
 
     public boolean handle(Update update, Map<Long, MenuState> userMenuState) {

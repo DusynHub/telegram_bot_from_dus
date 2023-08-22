@@ -6,6 +6,7 @@ import dev.dus.dusbot.menuSenders.MenuSender;
 import dev.dus.dusbot.model.FilePath;
 import dev.dus.dusbot.repository.FilePathRepository;
 import dev.dus.dusbot.service.TelegramBot;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Component;
@@ -21,6 +22,7 @@ import java.util.List;
 import java.util.Map;
 
 @Component
+@Slf4j
 public class MainMenuCallback extends Handler {
 
     @Autowired
@@ -31,6 +33,9 @@ public class MainMenuCallback extends Handler {
             FilePathRepository filePathRepository
     ) {
         super(null, null, null);
+        log.info("[{}]>>> {} bean has been created",
+                this.getClass().getSimpleName(),
+                this.getClass().getSimpleName());
     }
 
     public boolean handle(Update update, Map<Long, MenuState> userMenuState) {
