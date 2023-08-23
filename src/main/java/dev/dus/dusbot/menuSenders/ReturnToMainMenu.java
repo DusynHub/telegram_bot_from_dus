@@ -40,7 +40,7 @@ public class ReturnToMainMenu extends MenuSender{
     private SendMessage getSendMessage(long chatId) {
         SendMessage sendMessage = new SendMessage();
         sendMessage.setChatId(chatId);
-        sendMessage.setText("press button if you want return to main menu");
+        sendMessage.setText("press button if you want to return to main menu");
 
         InlineKeyboardMarkup markUpInline = new InlineKeyboardMarkup();
         List<List<InlineKeyboardButton>> rowsInline = new ArrayList<>();

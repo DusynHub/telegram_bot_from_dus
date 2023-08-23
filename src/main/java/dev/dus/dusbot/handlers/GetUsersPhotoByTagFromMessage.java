@@ -44,7 +44,8 @@ public class GetUsersPhotoByTagFromMessage extends Handler {
             long chatId = message.getChatId();
             User currentUser = message.getFrom();
             long userId = message.getFrom().getId();
-            String[] tags = message.getText().split(" ");
+            String preparedText = message.getText().replaceAll("\\s+"," ");
+            String[] tags = preparedText.split(" ");
 
             if (userMenuState.getOrDefault(userId, MenuState.START) != MenuState.GET_PHOTO_BY_TAGS_MESSAGE) {
                 log.info("[{}]>>> {} received photo in a wrong menu. Previous menu must be {}",
